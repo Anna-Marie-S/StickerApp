@@ -5,6 +5,7 @@ import android.view.Display
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,9 +41,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-                DisplayBox( modifier = Modifier
-                    .fillMaxSize()
-                    .padding(100.dp))
+                DrawingBox()
             }
         }
     }
@@ -107,5 +106,27 @@ fun StickerSelection(res: Int, onResChange: (Int) -> Unit) {
         }
 
 
+    }
+}
+
+@Composable
+fun DrawingBox(){
+    val stickerController = rememberStickerController()
+
+    Box(modifier = Modifier.fillMaxSize())
+    {
+        Column {
+                stickerController.imageList.forEach {
+                    sw ->
+                    Image(
+                        painter = painterResource(sw.res),
+                        contentDescription = sw.res.toString()
+                    )
+                }
+            ControlBar(
+                stickerController
+            )
+
+        }
     }
 }
