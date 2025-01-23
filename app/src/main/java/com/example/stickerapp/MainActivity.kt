@@ -9,14 +9,21 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,7 +36,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,92 +56,49 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-                DrawingBox()
+                DrawingScreen()
             }
         }
     }
 }
 
-
-
 @Composable
-fun DisplayBox(modifier: Modifier){
-   var res by remember  {mutableStateOf(R.drawable.icons8_taco_64) }
-    var imageList  = remember {mutableStateListOf<Int>()}
-    StickerSelection(res = res, onResChange = {imageList.add(it)})
-
-    Row(modifier = Modifier
-        .padding(20.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center)
-    {
-        imageList.forEach { Int ->
-            Image(
-                painter = painterResource(Int),
-                contentDescription = res.toString()
-            )
-        }
-    }
-
-}
-
-@Composable
-fun StickerSelection(res: Int, onResChange: (Int) -> Unit) {
-    var imageList  = remember {mutableStateListOf<Int>()}
-
-    Column(
-        modifier = Modifier
-            .padding(50.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
-
-        Row(
-            modifier = Modifier.padding(15.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                modifier = Modifier,
-                onClick = { onResChange(R.drawable.icons8_castle_48) }
-            ) {
-                Text(text = "House")
-            }
-            Button(
-                modifier = Modifier,
-                onClick = { onResChange(R.drawable.icons8_ghost_64) }
-            ) {
-                Text(text = "Ghost")
-            }
-            Button(
-                modifier = Modifier,
-                onClick = { onResChange(R.drawable.icons8_taco_64) }
-            ) {
-                Text(text = "Taco")
-            }
-        }
-
-
-    }
-}
-
-@Composable
-fun DrawingBox(){
+fun DrawingScreen(){
     val stickerController = rememberStickerController()
 
-    Box(modifier = Modifier.fillMaxSize())
-    {
-        Column {
-                stickerController.imageList.forEach {
-                    sw ->
+    val ctx = LocalContext.current
+
+    val tester = ImageBitmap.imageResource(R.drawable.icons8_taco_64)
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(Color.Gray)
+                    .height(500.dp)
+                    .width(500.dp)
+            ){
+
+                stickerController.imageList.forEach { sw ->
                     Image(
                         painter = painterResource(sw.res),
-                        contentDescription = sw.res.toString()
+                        contentDescription = sw.res.toString(),
+
+                        modifier = Modifier.offset(x = sw.positionX, y = sw.positionY)
+                            .size(sw.size)
+                            .clickable {  }
                     )
-                }
+            }
+            }
+
+
+
             ControlBar(
                 stickerController
             )
 
         }
     }
-}
