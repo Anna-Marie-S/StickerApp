@@ -8,10 +8,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -29,7 +31,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,6 +64,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.stickerapp.ui.theme.StickerAppTheme
@@ -100,23 +108,53 @@ fun DrawingScreen(){
 
                 stickerController.imageList.forEach { sticker ->
                     DragRotateBox(
-                        resource = sticker.res
+                        stickerController = stickerController,
+                        resource = sticker
                     )
                 }
             }
+        ControlBar(stickerController)
 
-
-
-            ControlBar(
-                stickerController,
-
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(30.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+                    .padding(bottom = 100.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = "Added Stickers",
+                    color = Color.White,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start
+                )
+                stickerController.imageList.forEach { sticker ->
+                    Text(
+                        text = sticker.name
+                    )
+                }
+                 val size = stickerController.imageList.size
+                Text(
+                    text = "You have added $size Stickers"
+                )
+            }
+        }
 
         }
     }
 
 @Composable
-fun DragRotateBox(resource: Int) {
+fun DragRotateBox(stickerController: StickerController, resource: StickerWrapper) {
+
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -125,6 +163,7 @@ fun DragRotateBox(resource: Int) {
         var position by remember { mutableStateOf(Offset.Zero) } // offset
         var scale by remember { mutableStateOf(1f) }
         var centroid by remember { mutableStateOf(Offset.Zero) }
+
 
 
 
@@ -148,7 +187,7 @@ fun DragRotateBox(resource: Int) {
                     scaleX = scale,
                     scaleY = scale
                 )
-                .background(Color.Blue)
+                .border(1.dp, Color.Yellow, shape = RoundedCornerShape(15.dp))
                 .size(boxSize)
                 .pointerInput(Unit) {
                     detectTransformGestures (
@@ -159,12 +198,25 @@ fun DragRotateBox(resource: Int) {
                     }
                     )
                 }
+
         )
         {
             Image(
-                painter = painterResource(resource),
+                painter = painterResource(resource.res),
                 contentDescription = resource.toString(),
                 modifier = Modifier.fillMaxSize()
+            )
+            //Delete Handler
+            Box(
+                modifier = Modifier
+                    .size(handleSize)
+                    .background(Color.Black)
+                    .align(Alignment.BottomStart)
+                    .pointerInput(Unit) {
+                        detectTapGestures (
+                            onTap = { stickerController.removeSticker(resource) }
+                        )
+                    }
             )
             // Rotation handler
             Box(
@@ -201,6 +253,7 @@ fun DragRotateBox(resource: Int) {
                         )
                     }
             )
+
         }
     }
 }

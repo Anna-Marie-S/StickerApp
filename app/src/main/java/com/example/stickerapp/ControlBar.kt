@@ -47,6 +47,23 @@ import androidx.compose.ui.unit.dp
         {
             Text(text = "Add Taco")
         }
+        Button(
+            colors = ButtonDefaults.buttonColors(),
+            onClick = { stickerController.clearStickers() },
+            modifier = Modifier.padding(3.dp)
+        )
+        {
+            Text(text = "Clear")
+        }
+        Button(
+            colors = ButtonDefaults.buttonColors(),
+            onClick = { stickerController.undoSticker()},
+            modifier = Modifier.padding(3.dp)
+        )
+        {
+            Text(text = "Undo Sticker")
+        }
+
 
 
     }

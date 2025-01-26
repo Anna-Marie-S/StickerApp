@@ -37,8 +37,6 @@ class StickerController(){
             positionX = 50.dp,
             positionY = 50.dp,
         )
-
-
         imageList.add(stickerWrapper)
     }
 
@@ -50,10 +48,23 @@ class StickerController(){
             positionY = 100.dp,
 
         )
-
-
         imageList.add(stickerWrapper)
     }
+
+    fun clearStickers(){
+        imageList.clear()
+    }
+
+    fun removeSticker(res: StickerWrapper){
+        imageList.remove(res)
+    }
+
+    fun undoSticker(){
+        val last = imageList.last()
+        imageList.remove(last)
+    }
+
+
 
 
 // not needed right now
