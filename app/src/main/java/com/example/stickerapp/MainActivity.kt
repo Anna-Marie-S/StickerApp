@@ -10,12 +10,18 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -32,7 +38,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +49,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +62,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -75,12 +85,14 @@ import kotlin.math.sin
 class MainActivity : ComponentActivity() {
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-               DrawingScreen()
+                val drawController = rememberDrawController()
+               DrawBox(drawController = drawController)
             }
         }
     }
@@ -88,9 +100,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun DrawingScreen(){
+
     val stickerController = rememberStickerController()
-
-
 
 
     Column(
@@ -98,13 +109,17 @@ fun DrawingScreen(){
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Box(
                 modifier = Modifier
-                    .background(Color.Gray)
-                    .height(500.dp)
-                    .width(500.dp)
-            ){
+                    .fillMaxSize()
+                    .weight(1f, fill = false)
+                    .background(Color.LightGray)
+            ) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
 
+                drawCircle(Color.Red, center = Offset(50f, 200f), radius = 40f)
+            }
 
                 stickerController.imageList.forEach { sticker ->
                     DragRotateBox(
@@ -112,55 +127,48 @@ fun DrawingScreen(){
                         resource = sticker
                     )
                 }
+                Row(modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(12.dp)) {
+                    Column(
+                        modifier = Modifier
+                    ) {
+                        stickerController.addedSticker.forEach { sticker ->
+                            Text(text = "${sticker.name} with Id ${sticker.id} at position ${sticker.positionY}")
+                        }
+
+                    }
+
+                    Column(
+                        modifier = Modifier
+                    ) {
+                        stickerController.imageList.forEach { sticker ->
+                            Text(text = "${sticker.name} with Id ${sticker.id} at position ${sticker.positionY}")
+                        }
+
+                    }
+                }
+
             }
         ControlBar(stickerController)
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(30.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-                    .padding(bottom = 100.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    text = "Added Stickers",
-                    color = Color.White,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Start
-                )
-                stickerController.imageList.forEach { sticker ->
-                    Text(
-                        text = sticker.name
-                    )
-                }
-                 val size = stickerController.imageList.size
-                Text(
-                    text = "You have added $size Stickers"
-                )
-            }
-        }
-
         }
     }
 
+/*
+The Draggable Composable has a main box that takes in an image and also takes in
+other boxes as handlers
+
+ */
 @Composable
-fun DragRotateBox(stickerController: StickerController, resource: StickerWrapper) {
-
-
+fun DragRotateBox(
+    stickerController: StickerController,
+    resource: StickerWrapper
+){
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         var rotation by remember { mutableStateOf(0f) }
-        var position by remember { mutableStateOf(Offset.Zero) } // offset
+        var position by remember { mutableStateOf(Offset(resource.positionX, resource.positionY)) } // offset
         var scale by remember { mutableStateOf(1f) }
         var centroid by remember { mutableStateOf(Offset.Zero) }
 
@@ -187,14 +195,14 @@ fun DragRotateBox(stickerController: StickerController, resource: StickerWrapper
                     scaleX = scale,
                     scaleY = scale
                 )
-                .border(1.dp, Color.Yellow, shape = RoundedCornerShape(15.dp))
                 .size(boxSize)
                 .pointerInput(Unit) {
                     detectTransformGestures (
-                        onGesture = { gestureCentroid, gesturePan, gestureZoom, _ ->
+                        onGesture = { gestureCentroid, gesturePan, _ , _ ->
                         position += gesturePan.rotateBy(rotation)*scale
-                        scale *=gestureZoom
+                        //scale *=gestureZoom
                         centroid = gestureCentroid
+                            stickerController.setPosition(resource.id, position.x, position.y)
                     }
                     )
                 }
@@ -206,23 +214,27 @@ fun DragRotateBox(stickerController: StickerController, resource: StickerWrapper
                 contentDescription = resource.toString(),
                 modifier = Modifier.fillMaxSize()
             )
+
             //Delete Handler
             Box(
                 modifier = Modifier
                     .size(handleSize)
-                    .background(Color.Black)
+                    .background(Color.Red)
                     .align(Alignment.BottomStart)
                     .pointerInput(Unit) {
                         detectTapGestures (
-                            onTap = { stickerController.removeSticker(resource) }
+                            onTap = { stickerController.deleteSticker(resource.id) }
                         )
                     }
-            )
+            ){
+                Icon( imageVector = Icons.Filled.Delete,
+                    contentDescription = "Delete")
+            }
             // Rotation handler
             Box(
                 modifier = Modifier
                     .size(handleSize)
-                    .background(Color.Red)
+                    .background(Color.Yellow)
                     .align(Alignment.TopCenter)
                     .pointerInput(Unit) {
                         detectDragGestures(
@@ -236,9 +248,12 @@ fun DragRotateBox(stickerController: StickerController, resource: StickerWrapper
                             }
                         )
                     }
-            )
+            ) {
+                Icon( imageVector = Icons.Filled.Refresh,
+                    contentDescription = "Rotate")
+            }
 
-            //Zoom Handler
+           // Zoom Handler
             Box(
                 modifier = Modifier
                     .size(handleSize)
@@ -253,6 +268,11 @@ fun DragRotateBox(stickerController: StickerController, resource: StickerWrapper
                         )
                     }
             )
+            {
+                Icon( imageVector = Icons.Filled.Add,
+                    contentDescription = "Zoom",
+                  )
+            }
 
         }
     }

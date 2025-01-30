@@ -3,8 +3,10 @@ package com.example.stickerapp
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.media.Image
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
@@ -28,40 +30,63 @@ import androidx.core.content.ContextCompat
 class StickerController(){
 
     val imageList = mutableStateListOf<StickerWrapper>()
+    var id_counter : Int = 0
+    val addedSticker = mutableStateListOf<StickerWrapper>()
+
+
 
 
     fun addHouseSticker(){
+        id_counter += 1
         val stickerWrapper = StickerWrapper(
             res = R.drawable.icons8_castle_48,
-            name = "House",
-            positionX = 50.dp,
-            positionY = 50.dp,
+            id = id_counter,
+            name = "House"
         )
         imageList.add(stickerWrapper)
+        addedSticker.add(stickerWrapper)
     }
 
     fun addTacoSticker(){
+
+        id_counter++
         val stickerWrapper = StickerWrapper(
             res = R.drawable.icons8_taco_64,
-            name = "Taco",
-            positionX = 50.dp,
-            positionY = 100.dp,
-
+            id = id_counter,
+            name = "Taco"
         )
         imageList.add(stickerWrapper)
+        addedSticker.add(stickerWrapper)
     }
 
     fun clearStickers(){
         imageList.clear()
     }
 
+    fun setPosition(res_id: Int, posX: Float, posY: Float){
+        imageList.find { it.id == res_id }?.positionX = posX
+        imageList.find { it.id == res_id }?.positionY = posY
+    }
+
     fun removeSticker(res: StickerWrapper){
         imageList.remove(res)
+    }
+
+    fun deleteSticker(res_id: Int){
+
+        val toDelete = imageList.find {it.id == res_id}
+        if (toDelete != null){
+            imageList.remove(toDelete)
+        } else {}
     }
 
     fun undoSticker(){
         val last = imageList.last()
         imageList.remove(last)
+    }
+
+    fun returnResource(index: Int): Int{
+        return imageList.get(index).res
     }
 
 
