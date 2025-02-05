@@ -41,6 +41,16 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.input.motionprediction)
+    val ink_version = "1.0.0-alpha01"
+
+    implementation("androidx.ink:ink-authoring:$ink_version")
+    implementation("androidx.ink:ink-brush:$ink_version")
+    implementation("androidx.ink:ink-geometry:$ink_version")
+    implementation("androidx.ink:ink-nativeloader:$ink_version")
+    implementation("androidx.ink:ink-rendering:$ink_version")
+    implementation("androidx.ink:ink-strokes:$ink_version")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
