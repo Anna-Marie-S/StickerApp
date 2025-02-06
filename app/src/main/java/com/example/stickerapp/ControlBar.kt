@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 @Composable
     fun ControlBar(
     stickerController: StickerController,
+    drawController: DrawController,
     viewModel: MainViewModel
 ) {
         var checked by remember {mutableStateOf(false)}
@@ -42,39 +44,56 @@ import androidx.compose.ui.unit.dp
         modifier = Modifier.padding(12.dp),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
+        Button(
+            colors = ButtonDefaults.buttonColors(Color.Black),
+            onClick = { drawController.changeColor(Color.Black) },
+            modifier = Modifier.padding(3.dp).width(30.dp)
+        )
+        {
+            //Black Pen
+        }
+        Button(
+            colors = ButtonDefaults.buttonColors(Color.White),
+            onClick = { drawController.changeColor(Color.White) },
+            modifier = Modifier.padding(3.dp).width(30.dp)
+        )
+        {
+            //Eraser
+        }
+        Button(
+            colors = ButtonDefaults.buttonColors(),
+            onClick = { drawController.unDo() },
+            modifier = Modifier.padding(3.dp)
+        )
+        {
+            Text(text = "UnDo")
+        }
+        Button(
+            colors = ButtonDefaults.buttonColors(),
+            onClick = { drawController.reDo() },
+            modifier = Modifier.padding(3.dp)
+        )
+        {
+            Text(text = "ReDo")
+        }
+        Button(
+            colors = ButtonDefaults.buttonColors(),
+            onClick = { drawController.reset() },
+            modifier = Modifier.padding(3.dp)
+        )
+        {
+            Text(text = "Reset Canvas")
+        }
+        Button(
+            colors = ButtonDefaults.buttonColors(),
+            onClick = { drawController.saveBitmap() },
+            modifier = Modifier.padding(3.dp)
+        )
+        {
+            Text(text = "Download")
+        }
 
-        Button(
-            colors = ButtonDefaults.buttonColors(),
-            onClick = { stickerController.addHouseSticker() },
-            modifier = Modifier.padding(3.dp)
-        )
-        {
-            Text(text = "Add House")
-        }
-        Button(
-            colors = ButtonDefaults.buttonColors(),
-            onClick = { stickerController.addTacoSticker() },
-            modifier = Modifier.padding(3.dp)
-        )
-        {
-            Text(text = "Add Taco")
-        }
-        Button(
-            colors = ButtonDefaults.buttonColors(),
-            onClick = { stickerController.clearStickers() },
-            modifier = Modifier.padding(3.dp)
-        )
-        {
-            Text(text = "Clear")
-        }
-        Button(
-            colors = ButtonDefaults.buttonColors(),
-            onClick = { stickerController.undoSticker()},
-            modifier = Modifier.padding(3.dp)
-        )
-        {
-            Text(text = "Undo Sticker")
-        }
+        // For changing to TransformMode
         Switch(
             checked = checked, // the initial state of the switch
             onCheckedChange = {

@@ -1,5 +1,6 @@
 package com.example.stickerapp
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.Display
 import androidx.activity.ComponentActivity
@@ -66,6 +67,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -79,27 +81,41 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.stickerapp.ui.theme.StickerAppTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
 class MainActivity : ComponentActivity() {
 
-private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-                DrawingScreen(viewModel)
+                DrawingScreen(viewModel) {
+                    checkAndAskPermission {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val uri = saveImage(it)
+                            withContext(Dispatchers.Main) {
+                                startActivity(activityChooser(uri))
+
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun DrawingScreen(viewModel: MainViewModel) {
+fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
 
     val stickerController = rememberStickerController()
     val drawController = rememberDrawController()
@@ -111,7 +127,7 @@ fun DrawingScreen(viewModel: MainViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ControlBar(stickerController, viewModel)
+        ControlBar(stickerController,drawController, viewModel)
 
 // a box with the DrawBox and the StickerList
         Box(
@@ -120,7 +136,14 @@ fun DrawingScreen(viewModel: MainViewModel) {
                 .weight(1f, fill = false)
                 .background(Color.LightGray)
         ) {
-            DrawBox(drawController = drawController, viewModel = viewModel)
+            DrawBox(
+                drawController = drawController,
+                viewModel = viewModel,
+                bitmapCallback = {imageBitmap, error ->
+                    imageBitmap?.let {
+                        save(it.asAndroidBitmap())
+                    }
+                })
 
 
         stickerController.imageList.forEach { sticker ->
