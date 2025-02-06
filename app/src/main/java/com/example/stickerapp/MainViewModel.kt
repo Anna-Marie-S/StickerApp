@@ -13,4 +13,12 @@ class MainViewModel : ViewModel() {
         _paintMode.update { boolean }
         println("VM says paintMode is ${paintMode.value}")
     }
+    private var _pointerSize = MutableStateFlow(5f)
+    var pointerSize = _pointerSize.asStateFlow()
+
+    fun setPointerSize(size: Float){
+        _pointerSize.update { size}
+        println("VM says paintMode is ${pointerSize.value}")
+    }
+
 }

@@ -20,7 +20,8 @@ import kotlin.coroutines.suspendCoroutine
 
 data class PathWrapper(
     var points: SnapshotStateList<Offset>,
-    val strokeColor: Color
+    val strokeColor: Color,
+    val strokeWidth: Float
 )
 
 fun createPath(points: List<Offset>) = Path().apply {

@@ -43,10 +43,21 @@ class DrawController {
     var color by mutableStateOf(Color.Black)
         private set
 
+    var penSize by mutableStateOf(5f)
+        private set
+
+    var bgColor by mutableStateOf(Color.White)
+        private set
+
+    fun changeStrokeWidth(value: Float){
+        penSize = value
+    }
     fun changeColor(value: Color) {
         color = value
     }
-
+    fun changeBgColor(value: Color) {
+        bgColor = value
+    }
     fun updateLatestPath( newPoint: Offset){
         val index = _undoPathList.lastIndex
         _undoPathList[index].points.add(newPoint)
@@ -55,7 +66,8 @@ class DrawController {
     fun insertNewPath(newPoint: Offset) {
         val pathWrapper = PathWrapper(
             points = mutableStateListOf(newPoint),
-            strokeColor = color
+            strokeColor = color,
+            strokeWidth = penSize
         )
         _undoPathList.add(pathWrapper)
     }

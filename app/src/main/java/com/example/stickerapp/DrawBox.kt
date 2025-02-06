@@ -67,6 +67,7 @@ fun DrawBox(
             setContent {
                 LaunchedEffect(drawController) {
                     drawController.trackBitmaps(this@apply, this, bitmapCallback)
+                    drawController.changeBgColor(Color.White)
                 }
                 // here the Canvas
                 val paintMode by viewModel.paintMode.collectAsState()
@@ -80,10 +81,10 @@ fun DrawBox(
                     offset += offsetChange
                 }
 
-                Box(modifier = modifier.background(Color.White)){
+                Box(){
                     Canvas(
                         modifier = modifier
-                            .background(Color.Green)
+                            .background(drawController.bgColor)
                             .graphicsLayer(
                                 scaleX = scale,
                                 scaleY = scale,
@@ -92,8 +93,7 @@ fun DrawBox(
                                 translationY = offset.y
                             )
                             .size(1000.dp)
-                            .border(2.dp, Color.White)
-                            .align(Alignment.Center)
+                            .border(4.dp, Color.Magenta)
                             .pointerInput(Unit) {
 
                                 detectDragGestures(
@@ -112,7 +112,7 @@ fun DrawBox(
                                 color = pw.strokeColor,
                                 alpha = 1f,
                                 style = Stroke(
-                                    width = 5f,
+                                    width = pw.strokeWidth,
                                     cap = StrokeCap.Round,
                                     join = StrokeJoin.Round
                                 )
@@ -132,27 +132,13 @@ fun CustomTouchPad(
     isVisible: Boolean,
     state: TransformableState
 ){
-    val density = LocalDensity.current
     AnimatedVisibility(
-        visible = isVisible,
-//        enter = slideInVertically { with(density) { -40.dp.roundToPx()} }
-//        + expandVertically (expandFrom = Alignment.Top)
-//        + fadeIn(initialAlpha = 0.3f),
-//        exit = slideOutVertically() + shrinkVertically() + fadeOut()
+        visible = isVisible
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .transformable(state = state)
-                .drawWithContent {
-                    drawContent()
-                    drawCircle(
-                        color = Color(0xFFFFFFFF),
-                        center = Offset(x = size.width, y = size.height),
-                        radius = 50f,
-                        blendMode = BlendMode.DstOut
-                    )
-                }
                 .border(2.dp, Color.Blue)
         )
     }
