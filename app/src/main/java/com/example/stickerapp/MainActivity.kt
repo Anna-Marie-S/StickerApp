@@ -5,6 +5,7 @@ import android.view.Display
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -84,74 +85,51 @@ import kotlin.math.sin
 
 class MainActivity : ComponentActivity() {
 
-
+private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-                val drawController = rememberDrawController()
-               DrawBox(drawController = drawController)
+                DrawingScreen(viewModel)
             }
         }
     }
 }
 
 @Composable
-fun DrawingScreen(){
+fun DrawingScreen(viewModel: MainViewModel) {
 
     val stickerController = rememberStickerController()
+    val drawController = rememberDrawController()
 
 
+// a column with a box and the Controlbar
     Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ControlBar(stickerController, viewModel)
+
+// a box with the DrawBox and the StickerList
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f, fill = false)
+                .background(Color.LightGray)
         ) {
+            DrawBox(drawController = drawController, viewModel = viewModel)
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f, fill = false)
-                    .background(Color.LightGray)
-            ) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
 
-                drawCircle(Color.Red, center = Offset(50f, 200f), radius = 40f)
-            }
-
-                stickerController.imageList.forEach { sticker ->
-                    DragRotateBox(
-                        stickerController = stickerController,
-                        resource = sticker
-                    )
-                }
-                Row(modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(12.dp)) {
-                    Column(
-                        modifier = Modifier
-                    ) {
-                        stickerController.addedSticker.forEach { sticker ->
-                            Text(text = "${sticker.name} with Id ${sticker.id} at position ${sticker.positionY}")
-                        }
-
-                    }
-
-                    Column(
-                        modifier = Modifier
-                    ) {
-                        stickerController.imageList.forEach { sticker ->
-                            Text(text = "${sticker.name} with Id ${sticker.id} at position ${sticker.positionY}")
-                        }
-
-                    }
-                }
-
-            }
-        ControlBar(stickerController)
-        }
+        stickerController.imageList.forEach { sticker ->
+            DragRotateBox(
+                stickerController = stickerController,
+                resource = sticker
+            )
+        }}
+}
     }
 
 /*
