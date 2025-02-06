@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,12 +40,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,6 +55,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -93,22 +98,24 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-                DrawingScreen(viewModel) {
-                    checkAndAskPermission {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val uri = saveImage(it)
-                            withContext(Dispatchers.Main) {
-                                startActivity(activityChooser(uri))
-
-                            }
-                        }
-                    }
-                }
+//                DrawingScreen(viewModel) {
+//                    checkAndAskPermission {
+//                        CoroutineScope(Dispatchers.IO).launch {
+//                            val uri = saveImage(it)
+//                            withContext(Dispatchers.Main) {
+//                                startActivity(activityChooser(uri))
+//
+//                            }
+//                        }
+//                    }
+//                }
+                StickerScreen(viewModel)
             }
         }
     }
@@ -155,156 +162,62 @@ fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
 }
     }
 
-/*
-The Draggable Composable has a main box that takes in an image and also takes in
-other boxes as handlers
 
- */
 @Composable
-fun DragRotateBox(
-    stickerController: StickerController,
-    resource: StickerWrapper
+fun StickerScreen(
+    viewModel: MainViewModel,
 ){
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        var rotation by remember { mutableStateOf(0f) }
-        var position by remember { mutableStateOf(Offset(resource.positionX, resource.positionY)) } // offset
-        var scale by remember { mutableStateOf(1f) }
-        var centroid by remember { mutableStateOf(Offset.Zero) }
 
+    val stickerController = rememberStickerController()
+        Box(modifier = Modifier.fillMaxSize()) {
 
-
-
-        val boxSize = 100.dp
-        val handleSize = 20.dp
-
-        var initialTouch = Offset.Zero
-
-        val boxSizePx = with(LocalDensity.current) { boxSize.toPx() }
-
-        val center = Offset(boxSizePx, boxSizePx)
-
-
-        // Main Box
-        Box(
-            modifier = Modifier
-                .graphicsLayer(
-                    rotationZ = rotation,
-                    translationX = position.x,
-                    translationY = position.y,
-                    scaleX = scale,
-                    scaleY = scale
-                )
-                .size(boxSize)
-                .pointerInput(Unit) {
-                    detectTransformGestures (
-                        onGesture = { gestureCentroid, gesturePan, _ , _ ->
-                        position += gesturePan.rotateBy(rotation)*scale
-                        //scale *=gestureZoom
-                        centroid = gestureCentroid
-                            stickerController.setPosition(resource.id, position.x, position.y)
-                    }
-                    )
-                }
-
-        )
-        {
-            Image(
-                painter = painterResource(resource.res),
-                contentDescription = resource.toString(),
-                modifier = Modifier.fillMaxSize()
-            )
-
-            //Delete Handler
-            Box(
-                modifier = Modifier
-                    .size(handleSize)
-                    .background(Color.Red)
-                    .align(Alignment.BottomStart)
-                    .pointerInput(Unit) {
-                        detectTapGestures (
-                            onTap = { stickerController.deleteSticker(resource.id) }
-                        )
-                    }
-            ){
-                Icon( imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete")
-            }
-            // Rotation handler
-            Box(
-                modifier = Modifier
-                    .size(handleSize)
-                    .background(Color.Yellow)
-                    .align(Alignment.TopCenter)
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDragStart = { offset ->
-                                initialTouch = offset
-                            },
-                            onDrag = { change, dragAmount ->
-                                change.consume()
-                                val angle = calculateRotationAngle(center, initialTouch, change.position)
-                                rotation += angle
-                            }
-                        )
-                    }
-            ) {
-                Icon( imageVector = Icons.Filled.Refresh,
-                    contentDescription = "Rotate")
-            }
-
-           // Zoom Handler
-            Box(
-                modifier = Modifier
-                    .size(handleSize)
-                    .background(Color.Green)
-                    .align(Alignment.BottomEnd)
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDrag = { change, dragAmount ->
-                                change.consume()
-                               scale = (scale * dragAmount.x.toFloat()).coerceIn(1f, 5f)
-                            }
-                        )
-                    }
-            )
-            {
-                Icon( imageVector = Icons.Filled.Add,
-                    contentDescription = "Zoom",
-                  )
-            }
+                 stickerController.imageList.forEach { sticker ->
+                     DragBox(stickerController, sticker)
+                 }
 
         }
+
+}
+
+@Composable
+fun DragBox(
+    stickerController: StickerController,
+    sticker: StickerWrapper
+){
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
+
+    val d = LocalDensity.current
+
+    Box(
+        modifier = Modifier
+            //.offset((positionX/d.density).dp, (positionY/d.density).dp)
+            .graphicsLayer(
+                translationX = offsetX,
+                translationY = offsetY
+            )
+            .size(100.dp)
+            .clickable(
+                enabled = true,
+                onClick = {stickerController.removeSticker(sticker)}
+            )
+            .pointerInput(Unit) {
+                detectDragGestures (
+                    onDrag = {change, dragAmount ->
+                        offsetX = dragAmount.x
+                        offsetY = dragAmount.y
+                    }
+                )
+            }
+
+
+    )
+    {
+        Image(
+            painter = painterResource(sticker.res),
+            contentDescription = sticker.name,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
-// Generated by ChatGPT! from StackOverflow
-fun calculateRotationAngle(pivot: Offset, initialTouch: Offset, currentTouch: Offset): Float {
-    val initialVector = initialTouch - pivot
-    val currentVector = currentTouch - pivot
-
-    val initialAngle = atan2(initialVector.y, initialVector.x)
-    val currentAngle = atan2(currentVector.y, currentVector.x)
-
-    return Math.toDegrees((currentAngle - initialAngle).toDouble()).toFloat()
-}
-
-/**
- * Rotates the given offset around the origin by the given angle in degrees.
- *
- * A positive angle indicates a counterclockwise rotation around the right-handed 2D Cartesian
- * coordinate system.
- *
- * See: [Rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix)
- */
-fun Offset.rotateBy(
-    angle: Float
-): Offset {
-    val angleInRadians = ROTATION_CONST * angle
-    val newX = x * cos(angleInRadians) - y * sin(angleInRadians)
-    val newY = x * sin(angleInRadians) + y * cos(angleInRadians)
-    return Offset(newX, newY)
-}
-
-internal const val ROTATION_CONST = (Math.PI / 180f).toFloat()

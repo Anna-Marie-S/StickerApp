@@ -1,5 +1,6 @@
 package com.example.stickerapp
 
+import android.graphics.Bitmap
 import android.view.MotionEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
