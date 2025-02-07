@@ -50,11 +50,8 @@ fun DragRotateBox(
             modifier = Modifier.fillMaxSize()
         ) {
             var rotation by remember { mutableStateOf(0f) }
-           // offset
             var scale by remember { mutableStateOf(1f) }
             var centroid by remember { mutableStateOf(Offset.Zero) }
-            var offsetX by remember { mutableStateOf(0f)}
-            var offsetY by remember {mutableStateOf(0f)}
 
             var position by remember { mutableStateOf(Offset.Zero) }
 
@@ -102,7 +99,7 @@ fun DragRotateBox(
                     modifier = Modifier.fillMaxSize()
                 )
                     Text(
-                        text = resource.name
+                        text = resource.id.toString()
                     )
 
 

@@ -14,11 +14,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Create
+import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -54,63 +64,62 @@ import androidx.compose.ui.unit.dp
         horizontalAlignment = Alignment.CenterHorizontally) {
         Row(
             modifier = Modifier.padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceAround
+            horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                colors = ButtonDefaults.buttonColors(Color.Black),
-                onClick = { drawController.changeColor(Color.Black) },
-                modifier = Modifier.padding(3.dp).width(30.dp)
-            )
-            {
-                //Black Pen
+            //Black Pen
+            IconButton(
+                onClick = {drawController.changeColor(Color.Black)}
+            )  {
+                Icon(
+                    Icons.Rounded.Create,
+                    contentDescription = "Pen"
+                )
             }
-            Button(
-                colors = ButtonDefaults.buttonColors(Color.White),
-                onClick = { drawController.changeColor(Color.White) },
-                modifier = Modifier.padding(3.dp).width(30.dp)
-            )
-            {
-                //Eraser
+            //Eraser makes Slider visible
+            IconButton(
+                onClick = {drawController.changeColor(Color.White)
+                sliderVisible = !sliderVisible}
+            )  {
+                Icon(
+                    Icons.Rounded.Place,
+                    contentDescription = "Eraser"
+                )
             }
-            Button(
-                colors = ButtonDefaults.buttonColors(Color.Green),
-                onClick = { sliderVisible = !sliderVisible },
-                modifier = Modifier.padding(3.dp).width(30.dp)
-            )
-            {
-                //Slider
+            // Undo Button
+            IconButton(
+                onClick = {drawController.unDo()}
+            )  {
+                Icon(
+                    Icons.AutoMirrored.Rounded.ArrowBack,
+                    contentDescription = "Undo"
+                )
             }
-            Button(
-                colors = ButtonDefaults.buttonColors(),
-                onClick = { drawController.unDo() },
-                modifier = Modifier.padding(3.dp)
-            )
-            {
-                Text(text = "UnDo")
+            // ReDo Button
+            IconButton(
+                onClick = {drawController.reDo()}
+            )  {
+                Icon(
+                    Icons.AutoMirrored.Rounded.ArrowForward,
+                    contentDescription = "Redo"
+                )
             }
-            Button(
-                colors = ButtonDefaults.buttonColors(),
-                onClick = { drawController.reDo() },
-                modifier = Modifier.padding(3.dp)
-            )
-            {
-                Text(text = "ReDo")
+            //Reset Button
+            IconButton(
+                onClick = {drawController.reset()}
+            )  {
+                Icon(
+                    Icons.Default.Warning,
+                    contentDescription = "Clear Canvas"
+                )
             }
-            Button(
-                colors = ButtonDefaults.buttonColors(),
-                onClick = { drawController.reset() },
-                modifier = Modifier.padding(3.dp)
-            )
-            {
-                Text(text = "Reset Canvas")
-            }
-            Button(
-                colors = ButtonDefaults.buttonColors(),
-                onClick = { drawController.saveBitmap() },
-                modifier = Modifier.padding(3.dp)
-            )
-            {
-                Text(text = "Download")
+            //Download Button
+            IconButton(
+                onClick = {drawController.saveBitmap()}
+            )  {
+                Icon(
+                    Icons.Default.ShoppingCart,
+                    contentDescription = "Download"
+                )
             }
             Button(
                 colors = ButtonDefaults.buttonColors(),
