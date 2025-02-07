@@ -112,6 +112,22 @@ import androidx.compose.ui.unit.dp
             {
                 Text(text = "Download")
             }
+            Button(
+                colors = ButtonDefaults.buttonColors(),
+                onClick = {viewModel.addHouseSticker() },
+                modifier = Modifier.padding(3.dp)
+            )
+            {
+                Text(text = "House")
+            }
+            Button(
+                colors = ButtonDefaults.buttonColors(),
+                onClick = { viewModel.addTacoSticker() },
+                modifier = Modifier.padding(3.dp)
+            )
+            {
+                Text(text = "Taco")
+            }
 
             // For changing to TransformMode
             Switch(

@@ -58,6 +58,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -104,18 +105,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-//                DrawingScreen(viewModel) {
-//                    checkAndAskPermission {
-//                        CoroutineScope(Dispatchers.IO).launch {
-//                            val uri = saveImage(it)
-//                            withContext(Dispatchers.Main) {
-//                                startActivity(activityChooser(uri))
-//
-//                            }
-//                        }
-//                    }
-//                }
-                StickerScreen(viewModel)
+                DrawingScreen(viewModel) {
+                    checkAndAskPermission {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val uri = saveImage(it)
+                            withContext(Dispatchers.Main) {
+                                startActivity(activityChooser(uri))
+
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -126,6 +126,7 @@ fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
 
     val stickerController = rememberStickerController()
     val drawController = rememberDrawController()
+    val list = viewModel.stickerList
 
 
 // a column with a box and the Controlbar
@@ -134,7 +135,7 @@ fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ControlBar(stickerController,drawController, viewModel)
+        ControlBar(stickerController, drawController, viewModel)
 
 // a box with the DrawBox and the StickerList
         Box(
@@ -146,36 +147,60 @@ fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
             DrawBox(
                 drawController = drawController,
                 viewModel = viewModel,
-                bitmapCallback = {imageBitmap, error ->
+                bitmapCallback = { imageBitmap, error ->
                     imageBitmap?.let {
                         save(it.asAndroidBitmap())
                     }
                 })
 
 
-        stickerController.imageList.forEach { sticker ->
-            DragRotateBox(
-                stickerController = stickerController,
-                resource = sticker
-            )
-        }}
-}
+            list.forEach { sticker ->
+                key(
+                    sticker.id
+                ) {
+                    DragRotateBox(
+                        resource = sticker,
+                        onDelete = viewModel::deleteSticker
+                    )
+                }
+            }
+        }
     }
+}
 
 
 @Composable
 fun StickerScreen(
-    viewModel: MainViewModel,
+    viewModel: MainViewModel
 ){
 
     val stickerController = rememberStickerController()
-        Box(modifier = Modifier.fillMaxSize()) {
+    val drawController = rememberDrawController()
+    val list = viewModel.stickerList
 
-                 stickerController.imageList.forEach { sticker ->
-                     DragBox(stickerController, sticker)
-                 }
 
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ControlBar(stickerController,drawController, viewModel)
+
+// a box with the DrawBox and the StickerList
+Box() {
+    list.forEach { item ->
+        key(
+            item.id
+        ) {
+            DragRotateBox(
+                resource = item,
+                onDelete = viewModel::deleteSticker
+            )
         }
+    }
+}
+    }
 
 }
 
@@ -187,14 +212,25 @@ fun DragBox(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
 
-    val d = LocalDensity.current
+    var orgPosX by remember { mutableStateOf(sticker.positionX) }
+    var orgPosY by remember { mutableStateOf(sticker.positionY) }
+
+    var position by remember {
+        mutableStateOf(
+            Offset(
+                sticker.positionX,
+                sticker.positionY
+            )
+        )
+    }
+
 
     Box(
         modifier = Modifier
             //.offset((positionX/d.density).dp, (positionY/d.density).dp)
             .graphicsLayer(
-                translationX = offsetX,
-                translationY = offsetY
+                translationX = position.x,
+                translationY =position.y
             )
             .size(100.dp)
             .clickable(
@@ -204,9 +240,10 @@ fun DragBox(
             .pointerInput(Unit) {
                 detectDragGestures (
                     onDrag = {change, dragAmount ->
-                        offsetX = dragAmount.x
-                        offsetY = dragAmount.y
-                    }
+                        offsetX += dragAmount.x
+                        offsetY += dragAmount.y
+                    },
+                    onDragEnd = {stickerController.setPosition(sticker.id, orgPosX + offsetX, orgPosY + offsetY)}
                 )
             }
 
@@ -217,6 +254,9 @@ fun DragBox(
             painter = painterResource(sticker.res),
             contentDescription = sticker.name,
             modifier = Modifier.fillMaxSize()
+        )
+        Text(
+            text = sticker.id.toString()
         )
     }
 }

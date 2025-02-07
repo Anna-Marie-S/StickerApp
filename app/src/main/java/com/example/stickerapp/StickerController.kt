@@ -33,6 +33,8 @@ class StickerController(){
     var id_counter : Int = 0
     val addedSticker = mutableStateListOf<StickerWrapper>()
 
+    val stickerList = mutableStateListOf<Sticker>()
+
 
 
 
@@ -64,7 +66,7 @@ class StickerController(){
     }
 
     fun setPosition(res_id: Int, posX: Float, posY: Float){
-        imageList.find { it.id == res_id }?.positionX = posX
+        imageList.find { it.id == res_id }?.positionX= posX
         imageList.find { it.id == res_id }?.positionY = posY
     }
 

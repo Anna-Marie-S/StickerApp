@@ -8,13 +8,16 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,25 +41,22 @@ The Draggable Composable has a main box that takes in an image and also takes in
 other boxes as handlers
 
  */
-    @Composable
-    fun DragRotateBox(
-        stickerController: StickerController,
-        resource: StickerWrapper
+@Composable
+fun DragRotateBox(
+        resource: Sticker,
+        onDelete: (Sticker) -> Unit
     ) {
-        Column(
+        Box(
             modifier = Modifier.fillMaxSize()
         ) {
             var rotation by remember { mutableStateOf(0f) }
-            var position by remember {
-                mutableStateOf(
-                    Offset(
-                        resource.positionX,
-                        resource.positionY
-                    )
-                )
-            } // offset
+           // offset
             var scale by remember { mutableStateOf(1f) }
             var centroid by remember { mutableStateOf(Offset.Zero) }
+            var offsetX by remember { mutableStateOf(0f)}
+            var offsetY by remember {mutableStateOf(0f)}
+
+            var position by remember { mutableStateOf(Offset.Zero) }
 
 
             val boxSize = 100.dp
@@ -67,7 +67,7 @@ other boxes as handlers
             val boxSizePx = with(LocalDensity.current) { boxSize.toPx() }
 
             val center = Offset(boxSizePx, boxSizePx)
-
+            val d = LocalDensity.current
 
             // Main Box
             Box(
@@ -82,7 +82,7 @@ other boxes as handlers
                     .size(boxSize)
                     .clickable(
                         enabled = true,
-                        onClick = {stickerController.removeSticker(resource)}
+                        onClick = {onDelete(resource)}
                     )
                     .pointerInput(Unit) {
                         detectTransformGestures(
@@ -90,7 +90,6 @@ other boxes as handlers
                                 position += gesturePan.rotateBy(rotation) * scale
                                 //scale *=gestureZoom
                                 centroid = gestureCentroid
-                                stickerController.setPosition(resource.id, position.x, position.y)
                             }
                         )
                     }
@@ -98,10 +97,14 @@ other boxes as handlers
             )
             {
                 Image(
-                    painter = painterResource(resource.res),
-                    contentDescription = resource.toString(),
+                    painter = painterResource(resource.image),
+                    contentDescription = resource.name,
                     modifier = Modifier.fillMaxSize()
                 )
+                    Text(
+                        text = resource.name
+                    )
+
 
                 //Delete Handler
                 Box(
@@ -111,7 +114,7 @@ other boxes as handlers
                         .align(Alignment.BottomStart)
                         .pointerInput(Unit) {
                             detectTapGestures(
-                                onTap = { stickerController.removeSticker(resource) }
+                                onTap = { onDelete(resource) }
                             )
                         }
                 ) {

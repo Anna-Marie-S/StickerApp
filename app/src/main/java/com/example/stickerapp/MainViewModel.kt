@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class MainViewModel : ViewModel() {
+    /*
+    Canvas Things
+     */
     private var _paintMode = MutableStateFlow(false)
     var paintMode = _paintMode.asStateFlow()
 
@@ -25,45 +28,44 @@ class MainViewModel : ViewModel() {
         println("VM says paintMode is ${pointerSize.value}")
     }
 
+    /*
+    Sticker things
+     */
 
-    val active = mutableStateOf(false)
-    val count = mutableStateOf(0)
-    val selectedItems = mutableStateListOf<Sticker>()
-    val itemList = mutableStateListOf<Sticker>().apply { addAll(stickers) }
+    private val _stickerList = mutableStateListOf<Sticker>()
+    val stickerList = _stickerList
+
+    val counter = mutableStateOf(0)
 
 
-    fun clearSelection(){
-        selectedItems.clear()
-        count.value = 0
+    fun addHouseSticker(){
+        counter.value++
+        val item = Sticker(
+            id = counter.value,
+            name = "House",
+            image = R.drawable.icons8_castle_48
+        )
+        _stickerList.add(item)
     }
 
-    fun addSticker(item: Sticker){
-        itemList.add(item)
+    fun addTacoSticker(){
+        counter.value++
+        val item = Sticker(
+            id = counter.value,
+            name = "Taco",
+            image = R.drawable.icons8_taco_64
+        )
+        _stickerList.add(item)
     }
 
-    fun overridePosition(item: Sticker, x: Float, y: Float){
-        val index = itemList.indexOf(item)
-        itemList[index].posX = x
-        itemList[index].posY = y
-    }
     fun deleteSticker(item:Sticker){
-        itemList.remove(item)
+        _stickerList.remove(item)
     }
 
-
-    fun removeSelectedItems(){
-        itemList.removeAll(selectedItems)
-        clearSelection()
+    fun clearSticker(){
+        _stickerList.clear()
+        counter.value = 0
     }
 
-    fun toggleSelection(item: Sticker){
-        if (selectedItems.contains(item)){
-            selectedItems.remove(item)
-            count.value = 0
-        } else {
-            selectedItems.add(item)
-            count.value += 1
-        }
-    }
 
 }
