@@ -11,13 +11,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.unit.dp
 import com.example.stickerapp.ui.theme.StickerAppTheme
+import dev.shreyaspatil.capturable.capturable
+import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,6 +58,35 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun CapturableScreen(){
+
+    val captureController = rememberCaptureController()
+    val scope = rememberCoroutineScope()
+
+    Column(){
+        Button(
+            onClick = {
+                scope.launch {
+                    val bitmapAsync = captureController.captureAsync()
+                    try{
+                        val bitmap = bitmapAsync.await()
+                    } catch (e: Throwable){
+                        e.printStackTrace()
+                    }
+                }
+            }
+        ) { Text("Download") }
+
+        Box(
+            modifier = Modifier
+                .background(Color.Red)
+                .size(300.dp)
+                .capturable(captureController)
+        )
+    }
+}
 @Composable
 fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
 
@@ -80,18 +118,6 @@ fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
                         save(it.asAndroidBitmap())
                     }
                 })
-
-
-                list.forEach { sticker ->
-                    key(
-                        sticker.id
-                    ) {
-                        DragRotateBox(
-                            resource = sticker,
-                            onDelete = viewModel::deleteSticker
-                        )
-                    }
-                }
 
         }
     }

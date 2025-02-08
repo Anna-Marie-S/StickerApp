@@ -53,7 +53,7 @@ fun DragRotateBox(
             var scale by remember { mutableStateOf(1f) }
             var centroid by remember { mutableStateOf(Offset.Zero) }
 
-            var position by remember { mutableStateOf(Offset.Zero) }
+            var position by remember { mutableStateOf(Offset(300f, 300f)) }
 
 
             val boxSize = 100.dp
