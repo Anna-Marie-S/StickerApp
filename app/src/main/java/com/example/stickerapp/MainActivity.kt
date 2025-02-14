@@ -10,12 +10,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -23,7 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.stickerapp.ui.theme.StickerAppTheme
 import dev.shreyaspatil.capturable.capturable
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
@@ -42,50 +49,68 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-                DrawingScreen(viewModel) {
-                    checkAndAskPermission {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val uri = saveImage(it)
-                            withContext(Dispatchers.Main) {
-                                startActivity(activityChooser(uri))
-
-                            }
-                        }
-                    }
-                }
+//                DrawingScreen(viewModel) {
+//                    checkAndAskPermission {
+//                        CoroutineScope(Dispatchers.IO).launch {
+//                            val uri = saveImage(it)
+//                            withContext(Dispatchers.Main) {
+//                                startActivity(activityChooser(uri))
+//
+//                            }
+//                        }
+//                    }
+//                }
+                val stopwatch = remember {Stopwatch()}
+                StopwatchDisplay(
+                    formattedTime = stopwatch.formattedTime,
+                    onStartClick = stopwatch::start,
+                    onPauseClick = stopwatch::pause,
+                    onResetClick = stopwatch::reset,
+                )
             }
         }
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+
 @Composable
-fun CapturableScreen(){
-
-    val captureController = rememberCaptureController()
-    val scope = rememberCoroutineScope()
-
-    Column(){
-        Button(
-            onClick = {
-                scope.launch {
-                    val bitmapAsync = captureController.captureAsync()
-                    try{
-                        val bitmap = bitmapAsync.await()
-                    } catch (e: Throwable){
-                        e.printStackTrace()
-                    }
-                }
-            }
-        ) { Text("Download") }
-
-        Box(
-            modifier = Modifier
-                .background(Color.Red)
-                .size(300.dp)
-                .capturable(captureController)
+fun StopwatchDisplay(
+    formattedTime: String,
+    onStartClick: () -> Unit,
+    onPauseClick: () -> Unit,
+    onResetClick: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = formattedTime,
+            fontWeight = FontWeight.Bold,
+            fontSize = 30.sp,
+            color = Color.Black
         )
+        Spacer(Modifier.height(16.dp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ){
+            Button(onStartClick){
+                Text("Start")
+            }
+            Button(onPauseClick){
+                Text("Pause")
+            }
+            Button(onResetClick){
+                Text("Reset")
+            }
+
+        }
     }
+
 }
 @Composable
 fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
