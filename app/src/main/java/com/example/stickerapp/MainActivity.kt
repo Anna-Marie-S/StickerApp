@@ -92,8 +92,11 @@ fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
 
     val stickerController = rememberStickerController()
     val drawController = rememberDrawController()
-    val list = viewModel.stickerList
+    var size = 500.dp
 
+    fun increaseSize(){
+        size += 200.dp
+    }
 
 // a column with a box and the Controlbar
     Column(

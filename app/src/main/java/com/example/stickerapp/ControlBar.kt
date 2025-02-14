@@ -114,7 +114,8 @@ import androidx.compose.ui.unit.dp
             }
             //Download Button
             IconButton(
-                onClick = {drawController.saveBitmap()}
+                onClick = {
+                    drawController.saveBitmap()}
             )  {
                 Icon(
                     Icons.Default.ShoppingCart,
@@ -137,6 +138,7 @@ import androidx.compose.ui.unit.dp
             {
                 Text(text = "Taco")
             }
+
 
             // For changing to TransformMode
             Switch(

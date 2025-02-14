@@ -2,6 +2,7 @@ package com.example.stickerapp
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asFlow
@@ -18,6 +19,9 @@ class MainViewModel : ViewModel() {
     private var _pointerSize = MutableStateFlow(5f)
     var pointerSize = _pointerSize.asStateFlow()
 
+    private var _canvasSize = MutableStateFlow(500.dp)
+    var canvasSize = _canvasSize.asStateFlow()
+
     fun setMode(boolean: Boolean){
         _paintMode.update { boolean }
         println("VM says paintMode is ${paintMode.value}")
@@ -27,6 +31,13 @@ class MainViewModel : ViewModel() {
         _pointerSize.update { size}
         println("VM says paintMode is ${pointerSize.value}")
     }
+
+    fun increaseCanvasSize(){
+        var oldSize = _canvasSize.value
+        _canvasSize.update { oldSize + 300.dp }
+    }
+
+
 
     /*
     Sticker things
