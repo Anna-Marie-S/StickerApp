@@ -49,24 +49,24 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-//                DrawingScreen(viewModel) {
-//                    checkAndAskPermission {
-//                        CoroutineScope(Dispatchers.IO).launch {
-//                            val uri = saveImage(it)
-//                            withContext(Dispatchers.Main) {
-//                                startActivity(activityChooser(uri))
-//
-//                            }
-//                        }
-//                    }
-//                }
-                val stopwatch = remember {Stopwatch()}
-                StopwatchDisplay(
-                    formattedTime = stopwatch.formattedTime,
-                    onStartClick = stopwatch::start,
-                    onPauseClick = stopwatch::pause,
-                    onResetClick = stopwatch::reset,
-                )
+                DrawingScreen(viewModel) {
+                    checkAndAskPermission {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val uri = saveImage(it)
+                            withContext(Dispatchers.Main) {
+                                startActivity(activityChooser(uri))
+
+                            }
+                        }
+                    }
+                }
+//                val stopwatch = remember {Stopwatch()}
+//                StopwatchDisplay(
+//                    formattedTime = stopwatch.formattedTime,
+//                    onStartClick = stopwatch::start,
+//                    onPauseClick = stopwatch::pause,
+//                    onResetClick = stopwatch::reset,
+//                )
             }
         }
     }
@@ -129,7 +129,7 @@ fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ControlBar(stickerController, drawController, viewModel)
+        ControlBar(drawController, viewModel)
 
 // a box with the DrawBox and the StickerList
         Box(
@@ -168,7 +168,7 @@ fun StickerScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ControlBar(stickerController,drawController, viewModel)
+        ControlBar(drawController, viewModel)
 
 // a box with the DrawBox and the StickerList
 Box() {

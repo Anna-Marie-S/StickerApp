@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.ArrowBack
@@ -26,6 +27,9 @@ import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,12 +51,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
     fun ControlBar(
-    stickerController: StickerController,
     drawController: DrawController,
     viewModel: MainViewModel
 ) {
@@ -122,22 +126,7 @@ import androidx.compose.ui.unit.dp
                     contentDescription = "Download"
                 )
             }
-            Button(
-                colors = ButtonDefaults.buttonColors(),
-                onClick = {viewModel.addHouseSticker() },
-                modifier = Modifier.padding(3.dp)
-            )
-            {
-                Text(text = "House")
-            }
-            Button(
-                colors = ButtonDefaults.buttonColors(),
-                onClick = { viewModel.addTacoSticker() },
-                modifier = Modifier.padding(3.dp)
-            )
-            {
-                Text(text = "Taco")
-            }
+            StickerMenu(viewModel)
 
 
             // For changing to TransformMode
@@ -192,6 +181,52 @@ fun CustomSlider(
                 valueRange = 3f..10f
             )
 
+        }
+    }
+}
+
+@Composable
+fun StickerMenu(
+    viewModel: MainViewModel
+){
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ){
+        IconButton(onClick = {expanded = !expanded}) {
+            Icon(Icons.Default.MoreVert, contentDescription = "Stickermenu")
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {expanded = false}
+        ) {
+            //First Section
+            DropdownMenuItem(
+                text = { Text("House")},
+                leadingIcon = { Image(painterResource(R.drawable.icons8_castle_48), contentDescription = null) },
+                onClick = {viewModel.addHouseSticker()}
+            )
+            DropdownMenuItem(
+                text = { Text("Ghost")},
+                leadingIcon = { Image(painterResource(R.drawable.icons8_ghost_64), contentDescription = null) },
+                onClick = {viewModel.addTacoSticker()}
+            )
+            HorizontalDivider()
+
+            //Second Section
+            DropdownMenuItem(
+                text = { Text("Taco")},
+                leadingIcon = { Image(painterResource(R.drawable.icons8_taco_64), contentDescription = null) },
+                onClick = {viewModel.addTacoSticker()}
+            )
+            DropdownMenuItem(
+                text = { Text("House")},
+                leadingIcon = { Image(painterResource(R.drawable.icons8_taco_64), contentDescription = null) },
+                onClick = {}
+            )
         }
     }
 }
