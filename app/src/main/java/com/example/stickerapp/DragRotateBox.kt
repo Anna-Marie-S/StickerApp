@@ -1,21 +1,26 @@
 package com.example.stickerapp
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -41,6 +48,7 @@ The Draggable Composable has a main box that takes in an image and also takes in
 other boxes as handlers
 
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DragRotateBox(
         resource: Sticker,
@@ -61,12 +69,13 @@ fun DragRotateBox(
 
             var initialTouch = Offset.Zero
 
+            var selected by remember { mutableStateOf(false) }
+
             val boxSizePx = with(LocalDensity.current) { boxSize.toPx() }
 
             val center = Offset(boxSizePx, boxSizePx)
-            val d = LocalDensity.current
 
-            // Main Box
+            // Main Border Box
             Box(
                 modifier = Modifier
                     .graphicsLayer(
@@ -77,98 +86,138 @@ fun DragRotateBox(
                         scaleY = scale
                     )
                     .size(boxSize)
-                    .clickable(
-                        enabled = true,
-                        onClick = {onDelete(resource)}
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = {
+                            selected = true},
+                        onLongClickLabel = "open Menu"
                     )
-                    .pointerInput(Unit) {
-                        detectTransformGestures(
-                            onGesture = { gestureCentroid, gesturePan, _, _ ->
-                                position += gesturePan.rotateBy(rotation) * scale
-                                //scale *=gestureZoom
-                                centroid = gestureCentroid
-                            }
-                        )
-                    }
 
             )
             {
-                Image(
-                    painter = painterResource(resource.image),
-                    contentDescription = resource.name,
-                    modifier = Modifier.fillMaxSize()
-                )
-                    Text(
-                        text = resource.id.toString()
+                // Image holding Box
+                Box(modifier = Modifier
+                    .size(60.dp)
+                    .align(Alignment.Center)) {
+                    Image(
+                        painter = painterResource(resource.image),
+                        contentDescription = resource.name,
+                        modifier = Modifier.fillMaxSize()
                     )
 
-
-                //Delete Handler
-                Box(
-                    modifier = Modifier
-                        .size(handleSize)
-                        .background(Color.Red)
-                        .align(Alignment.BottomStart)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onDelete(resource) }
-                            )
-                        }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = "Delete"
-                    )
                 }
-                // Rotation handler
-                Box(
-                    modifier = Modifier
-                        .size(handleSize)
-                        .background(Color.Yellow)
-                        .align(Alignment.TopCenter)
-                        .pointerInput(Unit) {
-                            detectDragGestures(
-                                onDragStart = { offset ->
-                                    initialTouch = offset
-                                },
-                                onDrag = { change, dragAmount ->
-                                    change.consume()
-                                    val angle = calculateRotationAngle(
-                                        center,
-                                        initialTouch,
-                                        change.position
+
+
+                AnimatedVisibility(
+                    visible = selected,
+                    enter = scaleIn(),
+                    exit = scaleOut()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(boxSize)
+                            .paint(painterResource(R.drawable.drag_pan_24px), alpha = 0.5f)
+                            .pointerInput(Unit) {
+                                detectTransformGestures(
+                                    onGesture = { gestureCentroid, gesturePan, _, _ ->
+                                        position += gesturePan.rotateBy(rotation) * scale
+                                        //scale *=gestureZoom
+                                        centroid = gestureCentroid
+                                    }
+                                )
+                            }
+                    ) {
+                        //Delete Handler
+                        Box(
+                            modifier = Modifier
+                                .size(handleSize)
+                                .clip(CircleShape)
+                                .background(Color.Red)
+                                .align(Alignment.TopStart)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = { onDelete(resource) }
                                     )
-                                    rotation += angle
                                 }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = "Delete"
                             )
                         }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Refresh,
-                        contentDescription = "Rotate"
-                    )
-                }
 
-                // Zoom Handler
-                Box(
-                    modifier = Modifier
-                        .size(handleSize)
-                        .background(Color.Green)
-                        .align(Alignment.BottomEnd)
-                        .pointerInput(Unit) {
-                            detectDragGestures(
-                                onDrag = { change, dragAmount ->
-                                    change.consume()
-                                    scale = (scale * dragAmount.x.toFloat()).coerceIn(1f, 5f)
+                        // To unselect
+                        Box(
+                            modifier = Modifier
+                                .size(handleSize)
+                                .clip(CircleShape)
+                                .background(Color.Cyan)
+                                .align(Alignment.TopEnd)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = { selected = false }
+                                    )
                                 }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Close Menu"
                             )
                         }
-                )
-                {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = "Zoom",
-                    )
+                        // Rotation handler
+//                        Box(
+//                            modifier = Modifier
+//                                .size(handleSize)
+//                                .clip(CircleShape)
+//                                .background(Color.Yellow)
+//                                .align(Alignment.BottomEnd)
+//                                .pointerInput(Unit) {
+//                                    detectDragGestures(
+//                                        onDragStart = { offset ->
+//                                            initialTouch = offset
+//                                        },
+//                                        onDrag = { change, _ ->
+//                                            change.consume()
+//                                            val angle = calculateRotationAngle(
+//                                                center,
+//                                                initialTouch,
+//                                                change.position
+//                                            )
+//                                            rotation += angle
+//                                        }
+//                                    )
+//                                }
+//                        ) {
+//                            Icon(
+//                                imageVector = Icons.Filled.Refresh,
+//                                contentDescription = "Rotate"
+//                            )
+//                        }
+
+                        // Zoom Handler
+//                        Box(
+//                            modifier = Modifier
+//                                .size(handleSize)
+//                                .clip(CircleShape)
+//                                .background(Color.Green)
+//                                .align(Alignment.BottomStart)
+//                                .pointerInput(Unit) {
+//                                    detectDragGestures(
+//                                        onDrag = { change, dragAmount ->
+//                                            change.consume()
+//                                            scale =
+//                                                (scale * dragAmount.x).coerceAtMost(5f)
+//                                        }
+//                                    )
+//                                }
+//                        )
+//                        {
+//                            Icon(
+//                                imageVector = Icons.Filled.Settings,
+//                                contentDescription = "Zoom",
+//                            )
+//                        }
+                    }
                 }
 
             }
