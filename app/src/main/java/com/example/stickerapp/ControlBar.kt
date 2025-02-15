@@ -6,27 +6,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material.icons.rounded.Place
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -37,22 +29,16 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -61,41 +47,32 @@ import androidx.compose.ui.unit.dp
     viewModel: MainViewModel
 ) {
     var checked by remember { mutableStateOf(false) }
-    var sliderVisible by remember { mutableStateOf(false) }
-    Column(
-        modifier = Modifier.padding(12.dp),
-        verticalArrangement = Arrangement.SpaceAround,
-        horizontalAlignment = Alignment.CenterHorizontally) {
+
         Row(
             modifier = Modifier.padding(12.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             //Black Pen
             IconButton(
-                onClick = {drawController.changeColor(Color.Black)}
+                onClick = {drawController.changeColor(Color.Black)
+                drawController.changeStrokeWidth(5f)}
             )  {
                 Icon(
-                    Icons.Rounded.Create,
-                    contentDescription = "Pen"
+                    painterResource(R.drawable.stylus_note_24px),
+                    contentDescription = "Pen",
+                    tint = Color.Black
                 )
             }
-            //Eraser makes Slider visible
-            IconButton(
-                onClick = {drawController.changeColor(Color.White)
-                sliderVisible = !sliderVisible}
-            )  {
-                Icon(
-                    Icons.Rounded.Place,
-                    contentDescription = "Eraser"
-                )
-            }
+            //Eraser makes Size Choices
+            EraserMenu(drawController)
             // Undo Button
             IconButton(
                 onClick = {drawController.unDo()}
             )  {
                 Icon(
-                    Icons.AutoMirrored.Rounded.ArrowBack,
-                    contentDescription = "Undo"
+                    painterResource(R.drawable.undo_24px),
+                    contentDescription = "Undo",
+                    tint = Color.Black
                 )
             }
             // ReDo Button
@@ -103,8 +80,9 @@ import androidx.compose.ui.unit.dp
                 onClick = {drawController.reDo()}
             )  {
                 Icon(
-                    Icons.AutoMirrored.Rounded.ArrowForward,
-                    contentDescription = "Redo"
+                    painterResource(R.drawable.redo_24px),
+                    contentDescription = "Redo",
+                    tint = Color.Black
                 )
             }
             //Reset Button
@@ -113,7 +91,8 @@ import androidx.compose.ui.unit.dp
             )  {
                 Icon(
                     Icons.Default.Warning,
-                    contentDescription = "Clear Canvas"
+                    contentDescription = "Clear Canvas",
+                    tint = Color.Black
                 )
             }
             //Download Button
@@ -122,10 +101,11 @@ import androidx.compose.ui.unit.dp
                     drawController.saveBitmap()}
             )  {
                 Icon(
-                    Icons.Default.ShoppingCart,
+                    painterResource(R.drawable.download_24px),
                     contentDescription = "Download"
                 )
             }
+            //Sticker DropDownMenu
             StickerMenu(viewModel)
 
 
@@ -139,51 +119,72 @@ import androidx.compose.ui.unit.dp
                 thumbContent = if (checked) {
                     {
                         Icon(
-                            imageVector = Icons.Filled.Check,
+                            painterResource(R.drawable.drag_pan_24px),
+                            tint = Color.Gray,
                             contentDescription = null,
                             modifier = Modifier.size(SwitchDefaults.IconSize)
                         )
                     }
                 } else {
-                    null
+                    {
+                        Icon(
+                            painterResource(R.drawable.stylus_note_24px),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(SwitchDefaults.IconSize)
+                        )
+                    }
                 }
             )
         }
-        //Animated Visibility Items
-        CustomSlider(sliderVisible, drawController)
-    }
 }
 
+
+
 @Composable
-fun CustomSlider(
-    isVisible: Boolean,
+fun EraserMenu(
     drawController: DrawController
-
 ){
-    AnimatedVisibility(
-        visible = isVisible
-    ) {
-        var sliderPosition by remember { mutableStateOf(0f) }
-        Column(
-            modifier = Modifier
-                .height(100.dp)
-                .width(500.dp),
-            verticalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Text(
-                text = "Stroke Width",
-                modifier = Modifier.padding(12.dp, 0.dp, 0.dp, 0.dp)
-            )
-            Slider(
-                value = drawController.penSize,
-                onValueChange = {sliderPosition = it},
-                onValueChangeFinished = {drawController.changeStrokeWidth(sliderPosition)},
-                valueRange = 3f..10f
-            )
+    var expanded by remember { mutableStateOf(false) }
 
+    Box{
+        TextButton(onClick = {expanded = !expanded
+        drawController.changeColor(Color.White)}) {
+            Row {
+                Icon(painterResource(R.drawable.ink_eraser_24px), tint = MaterialTheme.colorScheme.primary, contentDescription = "Eraser")
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Stickermenu")
+            }
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {expanded = false}
+        ) {
+            //Three Choices of Stroke Width
+            DropdownMenuItem(
+                text = { Text("Small")},
+                leadingIcon = { Icon(painterResource(R.drawable.eraser_size_2_24px), tint = Color.White, contentDescription = null) },
+                onClick = {
+                    drawController.changeStrokeWidth(10f)
+                expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Medium")},
+                leadingIcon = { Icon(painterResource(R.drawable.eraser_size_4_24px),tint = Color.White, contentDescription = null) },
+                onClick = {
+                    drawController.changeStrokeWidth(30f)
+                expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Large")},
+                leadingIcon = { Icon(painterResource(R.drawable.eraser_size_5_24px),tint = Color.White, contentDescription = null) },
+                onClick = {
+                    drawController.changeStrokeWidth(50f)
+                expanded = false}
+            )
         }
     }
 }
+
 
 @Composable
 fun StickerMenu(
@@ -191,13 +192,12 @@ fun StickerMenu(
 ){
     var expanded by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ){
-        IconButton(onClick = {expanded = !expanded}) {
-            Icon(Icons.Default.MoreVert, contentDescription = "Stickermenu")
+    Box{
+        TextButton(onClick = {expanded = !expanded}) {
+            Row {
+                Text("Stickers")
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Stickermenu")
+            }
         }
         DropdownMenu(
             expanded = expanded,
@@ -207,12 +207,16 @@ fun StickerMenu(
             DropdownMenuItem(
                 text = { Text("House")},
                 leadingIcon = { Image(painterResource(R.drawable.icons8_castle_48), contentDescription = null) },
-                onClick = {viewModel.addHouseSticker()}
+                onClick = {
+                    viewModel.addHouseSticker()
+                expanded = false}
             )
             DropdownMenuItem(
                 text = { Text("Ghost")},
                 leadingIcon = { Image(painterResource(R.drawable.icons8_ghost_64), contentDescription = null) },
-                onClick = {viewModel.addTacoSticker()}
+                onClick = {
+                    viewModel.addTacoSticker()
+                expanded = false}
             )
             HorizontalDivider()
 
@@ -220,11 +224,13 @@ fun StickerMenu(
             DropdownMenuItem(
                 text = { Text("Taco")},
                 leadingIcon = { Image(painterResource(R.drawable.icons8_taco_64), contentDescription = null) },
-                onClick = {viewModel.addTacoSticker()}
+                onClick = {
+                    viewModel.addTacoSticker()
+                expanded = false}
             )
             DropdownMenuItem(
                 text = { Text("House")},
-                leadingIcon = { Image(painterResource(R.drawable.icons8_taco_64), contentDescription = null) },
+                leadingIcon = { Image(painterResource(R.drawable.drag_pan_24px), contentDescription = null) },
                 onClick = {}
             )
         }

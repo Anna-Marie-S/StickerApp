@@ -13,8 +13,8 @@ class MainViewModel : ViewModel() {
     /*
     Canvas Things
      */
-    private var _paintMode = MutableStateFlow(false)
-    var paintMode = _paintMode.asStateFlow()
+    private var _dragMode = MutableStateFlow(false)
+    var dragMode = _dragMode.asStateFlow()
 
     private var _pointerSize = MutableStateFlow(5f)
     var pointerSize = _pointerSize.asStateFlow()
@@ -23,8 +23,7 @@ class MainViewModel : ViewModel() {
     var canvasSize = _canvasSize.asStateFlow()
 
     fun setMode(boolean: Boolean){
-        _paintMode.update { boolean }
-        println("VM says paintMode is ${paintMode.value}")
+        _dragMode.update { boolean }
     }
 
     fun setPointerSize(size: Float){

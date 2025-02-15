@@ -2,12 +2,8 @@ package com.example.stickerapp
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.TransformableState
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -21,7 +17,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -32,24 +27,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.drawText
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalFoundationApi::class)
+
 @Composable
 fun DrawBox(
     drawController: DrawController,
@@ -66,7 +54,7 @@ fun DrawBox(
                 }
 
     // here the Canvas
-    val paintMode by viewModel.paintMode.collectAsState()
+    val dragMode by viewModel.dragMode.collectAsState()
     val list = viewModel.stickerList
 
     var scale by remember { mutableStateOf(1f) }
@@ -87,7 +75,7 @@ fun DrawBox(
                     size += 300.dp
                 }
 
-    Box() {
+    Box {
         Box(modifier = modifier
             .fillMaxSize()
             .graphicsLayer(
@@ -100,7 +88,7 @@ fun DrawBox(
             Canvas(
                 modifier = modifier
                     .size(size)
-                    .background(if(!paintMode){Color.White}else{Color.Yellow}) // better the other way around
+                    .background(if(dragMode){Color.Yellow}else{Color.White}) // better the other way around
                     .clipToBounds()
                     .pointerInput(Unit) {
 
@@ -144,7 +132,7 @@ fun DrawBox(
             Button(onClick = { resetState() }) { Text("Reset Canvas") }
             Button(onClick = { makeBigger()  }) { Text("Add Space") }
         }
-        CustomTouchPad(paintMode, state)
+        CustomTouchPad(dragMode, state)
     }
 
             }
