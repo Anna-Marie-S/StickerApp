@@ -2,6 +2,7 @@ package com.example.stickerapp
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.TransformableState
@@ -9,7 +10,9 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,7 +25,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
@@ -36,26 +42,27 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import dev.shreyaspatil.capturable.capturable
+import dev.shreyaspatil.capturable.controller.CaptureController
+import dev.shreyaspatil.capturable.controller.rememberCaptureController
+import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DrawBox(
     drawController: DrawController,
     viewModel: MainViewModel,
-    bitmapCallback: (ImageBitmap?, Throwable?) -> Unit,
+    captureController: CaptureController,
+    //bitmapCallback: (ImageBitmap?, Throwable?) -> Unit,
     modifier: Modifier = Modifier
-) = AndroidView(
-    factory = {
-        ComposeView(it).apply {
-            setContent {
-                LaunchedEffect(drawController) {
-                    drawController.trackBitmaps(this@apply, this, bitmapCallback)
-                    drawController.changeBgColor(Color.White)
-                }
+){
 
     // here the Canvas
     val dragMode by viewModel.dragMode.collectAsState()
     val list = viewModel.stickerList
+
 
     var scale by remember { mutableStateOf(1f) }
     var rotation by remember { mutableStateOf(0f) }
@@ -75,9 +82,12 @@ fun DrawBox(
                     size += 300.dp
                 }
 
-    Box {
-        Box(modifier = modifier
+    Box(
+        Modifier.clipToBounds()
+    ) {
+        Box(modifier = Modifier
             .fillMaxSize()
+            .capturable(captureController)
             .graphicsLayer(
             scaleX = scale,
             scaleY = scale,
@@ -130,16 +140,15 @@ fun DrawBox(
         }
         Row(modifier = Modifier.padding(12.dp)) {
             Button(onClick = { resetState() }) { Text("Reset Canvas") }
-            Button(onClick = { makeBigger()  }) { Text("Add Space") }
+            Button(onClick = { }) { Text("Save") }
         }
+
         CustomTouchPad(dragMode, state)
     }
 
             }
-        }
-    },
-    modifier = modifier
-)
+
+
 
 @Composable
 fun CustomTouchPad(

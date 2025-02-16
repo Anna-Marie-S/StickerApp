@@ -1,31 +1,20 @@
 package com.example.stickerapp
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.rounded.Create
-import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -34,19 +23,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import dev.shreyaspatil.capturable.controller.CaptureController
+import kotlinx.coroutines.launch
 
 @Composable
     fun ControlBar(
     drawController: DrawController,
     viewModel: MainViewModel
-) {
+    ) {
+
+    val uiScope = rememberCoroutineScope()
     var checked by remember { mutableStateOf(false) }
+    //var canvasBitmap: ImageBitmap? by remember { mutableStateOf(null) }
 
         Row(
             modifier = Modifier.padding(12.dp),
@@ -97,16 +93,20 @@ import androidx.compose.ui.unit.dp
             }
             //Download Button
             IconButton(
-                onClick = {
-                    drawController.saveBitmap()}
+                onClick = {}
             )  {
                 Icon(
                     painterResource(R.drawable.download_24px),
-                    contentDescription = "Download"
+                    contentDescription = "Save"
                 )
             }
+
+
             //Sticker DropDownMenu
             StickerMenu(viewModel)
+
+              //Image(canvasBitmap!!, contentDescription = null)
+
 
 
             // For changing to TransformMode
@@ -208,14 +208,14 @@ fun StickerMenu(
                 text = { Text("House")},
                 leadingIcon = { Image(painterResource(R.drawable.icons8_castle_48), contentDescription = null) },
                 onClick = {
-                    viewModel.addHouseSticker()
+                    viewModel.addSticker(R.drawable.icons8_castle_48)
                 expanded = false}
             )
             DropdownMenuItem(
                 text = { Text("Ghost")},
                 leadingIcon = { Image(painterResource(R.drawable.icons8_ghost_64), contentDescription = null) },
                 onClick = {
-                    viewModel.addTacoSticker()
+                    viewModel.addSticker(R.drawable.icons8_ghost_64)
                 expanded = false}
             )
             HorizontalDivider()
@@ -225,7 +225,7 @@ fun StickerMenu(
                 text = { Text("Taco")},
                 leadingIcon = { Image(painterResource(R.drawable.icons8_taco_64), contentDescription = null) },
                 onClick = {
-                    viewModel.addTacoSticker()
+                    viewModel.addSticker(R.drawable.icons8_taco_64)
                 expanded = false}
             )
             DropdownMenuItem(

@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,25 +49,16 @@ class MainViewModel : ViewModel() {
     val counter = mutableStateOf(0)
 
 
-    fun addHouseSticker(){
+    fun addSticker(resource: Int){
         counter.value++
         val item = Sticker(
             id = counter.value,
             name = "House",
-            image = R.drawable.icons8_castle_48
+            image = resource
         )
         _stickerList.add(item)
     }
 
-    fun addTacoSticker(){
-        counter.value++
-        val item = Sticker(
-            id = counter.value,
-            name = "Taco",
-            image = R.drawable.icons8_taco_64
-        )
-        _stickerList.add(item)
-    }
 
     fun deleteSticker(item:Sticker){
         _stickerList.remove(item)
