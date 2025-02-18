@@ -1,6 +1,5 @@
 package com.example.stickerapp
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,31 +21,22 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.zIndex
 import com.example.stickerapp.ui.theme.StickerAppTheme
-import dev.shreyaspatil.capturable.capturable
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
@@ -122,7 +112,6 @@ fun DrawingScreen(viewModel: MainViewModel) {
 
     var showDialog by remember { mutableStateOf(false) }
 
-    var size = 500.dp
 
     fun downloadBitmap() {
         uiScope.launch {
@@ -142,7 +131,8 @@ fun DrawingScreen(viewModel: MainViewModel) {
     ) {
         ControlBar(drawController, viewModel)
         ControllerBar(
-            onDownloadClick = { downloadBitmap() },
+            onDownloadClick = {
+                downloadBitmap() },
             onShowClick = { showBitmap() }
         )
 
@@ -151,7 +141,7 @@ fun DrawingScreen(viewModel: MainViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f, fill = false)
-                .background(Color.LightGray)
+                .background(LightGray)
         ) {
             DrawBox(
                 drawController = drawController,
