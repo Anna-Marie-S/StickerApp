@@ -22,15 +22,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.ImageBitmap
@@ -39,9 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.zIndex
 import com.example.stickerapp.ui.theme.StickerAppTheme
-import dev.shreyaspatil.capturable.capturable
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +53,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-                DrawingScreen(viewModel)
+                DrawingScreen(viewModel){
+                    checkAndAskPermission {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val uri = saveImage(it)
+                            withContext(Dispatchers.Main) {
+                                startActivity(activityChooser(uri))
+                            }
+                        }
+                    }
+                }
 //                val stopwatch = remember {Stopwatch()}
 //                StopwatchDisplay(
 //                    formattedTime = stopwatch.formattedTime,
@@ -111,8 +115,9 @@ fun StopwatchDisplay(
     }
 
 }
+
 @Composable
-fun DrawingScreen(viewModel: MainViewModel) {
+fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
 
     val drawController = rememberDrawController()
     val captureController = rememberCaptureController()
@@ -122,12 +127,13 @@ fun DrawingScreen(viewModel: MainViewModel) {
 
     var showDialog by remember { mutableStateOf(false) }
 
-    var size = 500.dp
 
     fun downloadBitmap() {
         uiScope.launch {
             canvasBitmap = captureController.captureAsync().await()
+            canvasBitmap?.asAndroidBitmap()?.let { save(it) }
         }
+
     }
 
     fun showBitmap() {
@@ -140,10 +146,11 @@ fun DrawingScreen(viewModel: MainViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ControlBar(drawController, viewModel)
-        ControllerBar(
+        ControlBar(
+            drawController = drawController,
+            viewModel = viewModel,
             onDownloadClick = { downloadBitmap() },
-            onShowClick = { showBitmap() }
+            onShowClick = { showBitmap()}
         )
 
         //with the DrawBox and the StickerList
@@ -151,7 +158,7 @@ fun DrawingScreen(viewModel: MainViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f, fill = false)
-                .background(Color.LightGray)
+                .background(LightGray)
         ) {
             DrawBox(
                 drawController = drawController,

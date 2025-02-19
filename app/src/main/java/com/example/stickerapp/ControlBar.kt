@@ -37,7 +37,9 @@ import kotlinx.coroutines.launch
 @Composable
     fun ControlBar(
     drawController: DrawController,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    onDownloadClick: () -> Unit,
+    onShowClick: () -> Unit
     ) {
 
     val uiScope = rememberCoroutineScope()
@@ -93,13 +95,23 @@ import kotlinx.coroutines.launch
             }
             //Download Button
             IconButton(
-                onClick = {}
+                onClick = {onDownloadClick()}
             )  {
                 Icon(
                     painterResource(R.drawable.download_24px),
                     contentDescription = "Save"
                 )
             }
+            //Download Button
+            IconButton(
+                onClick = {onShowClick()}
+            )  {
+                Icon(
+                    painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = "Show"
+                )
+            }
+
 
 
             //Sticker DropDownMenu
