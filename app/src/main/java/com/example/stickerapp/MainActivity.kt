@@ -48,7 +48,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-                DrawingScreen(viewModel)
+                DrawingScreen(viewModel){
+                    checkAndAskPermission {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val uri = saveImage(it)
+                            withContext(Dispatchers.Main) {
+                                startActivity(activityChooser(uri))
+                            }
+                        }
+                    }
+                }
 //                val stopwatch = remember {Stopwatch()}
 //                StopwatchDisplay(
 //                    formattedTime = stopwatch.formattedTime,
@@ -101,8 +110,9 @@ fun StopwatchDisplay(
     }
 
 }
+
 @Composable
-fun DrawingScreen(viewModel: MainViewModel) {
+fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
 
     val drawController = rememberDrawController()
     val captureController = rememberCaptureController()
@@ -116,7 +126,9 @@ fun DrawingScreen(viewModel: MainViewModel) {
     fun downloadBitmap() {
         uiScope.launch {
             canvasBitmap = captureController.captureAsync().await()
+            canvasBitmap?.asAndroidBitmap()?.let { save(it) }
         }
+
     }
 
     fun showBitmap() {
