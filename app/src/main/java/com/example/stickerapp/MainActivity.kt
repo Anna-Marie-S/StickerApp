@@ -53,23 +53,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            StickerAppTheme {
-                val stopwatch = remember{Stopwatch()}
-                DrawingScreen(
-                    viewModel = viewModel,
-                    formattedTime = stopwatch.formattedTime,
-                    onStartClick = stopwatch::start,
-                    onPauseClick = stopwatch::pause
-                ){
-                    checkAndAskPermission {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val uri = saveImage(it)
-                            withContext(Dispatchers.Main) {
-                                startActivity(activityChooser(uri))
-                            }
-                        }
-                    }
-                }
+            LogInScreen()
+//            StickerAppTheme {
+//                val stopwatch = remember{Stopwatch()}
+//                DrawingScreen(
+//                    viewModel = viewModel,
+//                    formattedTime = stopwatch.formattedTime,
+//                    onStartClick = stopwatch::start,
+//                    onPauseClick = stopwatch::pause
+//                ){
+//                    checkAndAskPermission {
+//                        CoroutineScope(Dispatchers.IO).launch {
+//                            val uri = saveImage(it)
+//                            withContext(Dispatchers.Main) {
+//                                startActivity(activityChooser(uri))
+//                            }
+//                        }
+//                    }
+//                }
 //                val stopwatch = remember {Stopwatch()}
 //                StopwatchDisplay(
 //                    formattedTime = stopwatch.formattedTime,
@@ -80,7 +81,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
+
 
 
 @Composable
