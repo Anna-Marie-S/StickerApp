@@ -1,10 +1,15 @@
 package com.example.stickerapp
 
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,7 +54,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             StickerAppTheme {
-                DrawingScreen(viewModel){
+                val stopwatch = remember{Stopwatch()}
+                DrawingScreen(
+                    viewModel = viewModel,
+                    formattedTime = stopwatch.formattedTime,
+                    onStartClick = stopwatch::start,
+                    onPauseClick = stopwatch::pause
+                ){
                     checkAndAskPermission {
                         CoroutineScope(Dispatchers.IO).launch {
                             val uri = saveImage(it)
@@ -111,8 +123,14 @@ fun StopwatchDisplay(
 
 }
 
+@SuppressLint("NewApi")
 @Composable
-fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
+fun DrawingScreen(
+    viewModel: MainViewModel,
+    formattedTime: String,
+    onStartClick: () -> Unit,
+    onPauseClick: () -> Unit,
+    save: (Bitmap) -> Unit) {
 
     val drawController = rememberDrawController()
     val captureController = rememberCaptureController()
@@ -121,7 +139,9 @@ fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
     var canvasBitmap: ImageBitmap? by remember { mutableStateOf(null) }
 
     var showDialog by remember { mutableStateOf(false) }
+    var inputBoxVisible by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
 
     fun downloadBitmap() {
         uiScope.launch {
@@ -133,6 +153,9 @@ fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
 
     fun showBitmap() {
         showDialog = true
+    }
+    fun showInput() {
+        inputBoxVisible = !inputBoxVisible
     }
 
 // a column with a box and the Controlbar
@@ -190,8 +213,74 @@ fun DrawingScreen(viewModel: MainViewModel, save: (Bitmap) -> Unit) {
             }
 
         }
+
+    FileNameInputField(viewModel::updateFileName, inputBoxVisible)
     }
 
+@Composable
+fun FileNameInputField(
+    setFilename:(String) -> Unit,
+    isVisible: Boolean
+){
+    AnimatedVisibility(
+        visible = isVisible
+    ) { }
+    Box(
+        modifier = Modifier.padding(20.dp)
+            .size(300.dp)
 
+    ){
+        var input by remember { mutableStateOf("")}
+        OutlinedTextField(
+            value = input,
+            onValueChange = { input = it},
+            label = { Text("Filename") }
+        )
+        Button(
+            onClick = {setFilename(input)}
+        ) {
+            Text("Set name")
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private fun saveFileMediaStore(context: Context, content: String, fileName: String){
+    try {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }else {
+                val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val file = File(directory, fileName)
+                put(MediaStore.MediaColumns.DATA, file.absolutePath)
+            }
+        }
+        val resolver = context.contentResolver
+        val fileMediaStoreUri = resolver.insert(
+            MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
+        fileMediaStoreUri?.let { myUri ->
+            try{
+                resolver.openOutputStream(myUri)?.use { outputStream ->
+                    outputStream.write(content.toByteArray())
+                }
+
+                contentValues.clear()
+                contentValues.put(MediaStore.MediaColumns.IS_PENDING,0)
+                resolver.update(myUri, contentValues, null, null)
+            } catch (e: Exception){
+                e.printStackTrace()
+                resolver.delete(myUri, null, null)
+            }
+        }
+    }catch (e: IOException){
+        Toast.makeText(context, "Failed to save", Toast.LENGTH_SHORT).show()
+    }
+}
 
 
