@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -39,7 +41,10 @@ import kotlinx.coroutines.launch
     drawController: DrawController,
     viewModel: MainViewModel,
     onDownloadClick: () -> Unit,
-    onShowClick: () -> Unit
+    onShowClick: () -> Unit,
+    onInputClick: () -> Unit,
+    stopwatchStart: () ->Unit,
+    stopwatchStop: () -> Unit
     ) {
 
     val uiScope = rememberCoroutineScope()
@@ -52,7 +57,8 @@ import kotlinx.coroutines.launch
         ) {
             //Black Pen
             IconButton(
-                onClick = {drawController.changeColor(Color.Black)
+                onClick = {
+                    drawController.changeColor(Color.Black)
                 drawController.changeStrokeWidth(5f)}
             )  {
                 Icon(
@@ -95,11 +101,21 @@ import kotlinx.coroutines.launch
             }
             //Download Button
             IconButton(
-                onClick = {onDownloadClick()}
+                onClick = {onDownloadClick()
+                stopwatchStop()}
             )  {
                 Icon(
                     painterResource(R.drawable.download_24px),
                     contentDescription = "Save"
+                )
+            }
+            //Download Button
+            IconButton(
+                onClick = {stopwatchStart()}
+            )  {
+                Icon(
+                    Icons.Default.PlayArrow,
+                    contentDescription = "Start"
                 )
             }
             //Download Button
@@ -248,3 +264,4 @@ fun StickerMenu(
         }
     }
 }
+
