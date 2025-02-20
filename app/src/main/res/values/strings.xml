@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">StickerApp</string>
+    <string name ="info_text">Wir möchten Sie im Rahmen dieser Studie bitten eine mentale Karte von ihrer aktuellen Wohnumgebung zu zeichnen (ähnlich einer Landkarte, also aus der Vogelperspektive).
+        Sie können sich soviel Zeit lassen, wie sie benötigen, Eine Stoppuhr beginnt sobald Sie auf den "Start"-Button drücken und misst die Zeit bis Sie auf den "Download"-Button klicken.
+        Es ist für uns sehr wichtig, dass Sie keine Hilfsmittel benutzen wie z.B. analoge oder digitale Landkarten. Wir interessieren uns ja gerade dafür, wie sich Ihre räumliche Umgebung in Ihrem Kopf darstellt.
+        Versuchen Sie so vollständig zu sein wie möglich, aber machen Sie sich keine großen Gedanken über die ästhetische Qualität der Zeichnung, der Inhalt ist uns wichtiger. Sie können gerne unterschiedliche Farben benutzen, um bestimmte Gegebenheiten zu verdeutlichen.
+        Außerdem können Sie Ihrer Zeichnung Sticker hinzufügen, um bestimmte Einrichtungen oder Flächen zu markieren.
+    </string>
 </resources>
