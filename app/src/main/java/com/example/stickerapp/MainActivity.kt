@@ -23,9 +23,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,24 +57,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LogInScreen()
-//            StickerAppTheme {
-//                val stopwatch = remember{Stopwatch()}
-//                DrawingScreen(
-//                    viewModel = viewModel,
-//                    formattedTime = stopwatch.formattedTime,
-//                    onStartClick = stopwatch::start,
-//                    onPauseClick = stopwatch::pause
-//                ){
-//                    checkAndAskPermission {
-//                        CoroutineScope(Dispatchers.IO).launch {
-//                            val uri = saveImage(it)
-//                            withContext(Dispatchers.Main) {
-//                                startActivity(activityChooser(uri))
-//                            }
-//                        }
-//                    }
-//                }
+
+            StickerAppTheme {
+                val stopwatch = remember { Stopwatch() }
+                DrawingScreen(
+                    viewModel = viewModel,
+                    formattedTime = stopwatch.formattedTime,
+                    onStartClick = stopwatch::start,
+                    onPauseClick = stopwatch::pause
+                ) {
+                    checkAndAskPermission {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val uri = saveImage(it)
+                            withContext(Dispatchers.Main) {
+                                startActivity(activityChooser(uri))
+                            }
+                        }
+                    }
+                }
 //                val stopwatch = remember {Stopwatch()}
 //                StopwatchDisplay(
 //                    formattedTime = stopwatch.formattedTime,
@@ -81,8 +85,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-
+}
 
 @Composable
 fun StopwatchDisplay(
@@ -139,8 +142,10 @@ fun DrawingScreen(
     val uiScope = rememberCoroutineScope()
     var canvasBitmap: ImageBitmap? by remember { mutableStateOf(null) }
 
+    var fileName = viewModel.fileName.collectAsState()
+
     var showDialog by remember { mutableStateOf(false) }
-    var inputBoxVisible by remember { mutableStateOf(false) }
+    var inputBoxVisible by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
 
@@ -157,6 +162,14 @@ fun DrawingScreen(
     }
     fun showInput() {
         inputBoxVisible = !inputBoxVisible
+    }
+
+    if(inputBoxVisible) {
+        DialogWithTextField(
+            onDismissRequest = {inputBoxVisible = false},
+            onConfirmation = {viewModel.updateFileName(it)
+            onStartClick()}
+        )
     }
 
 // a column with a box and the Controlbar
@@ -215,8 +228,46 @@ fun DrawingScreen(
 
         }
 
-    FileNameInputField(viewModel::updateFileName, inputBoxVisible)
+
     }
+@Composable
+fun DialogWithTextField(
+    onDismissRequest: () -> Unit,
+    onConfirmation: (String) -> Unit
+) {
+    Dialog(onDismissRequest = { }) {
+        var text by remember { mutableStateOf("") }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = stringResource(R.string.info_text),
+                    modifier = Modifier.padding(16.dp),
+                )
+
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text("Filename") }
+                )
+                    TextButton(
+                        onClick = {
+                            if(text.isNotEmpty()){
+                                onConfirmation(text)
+                                  onDismissRequest()}
+                                  },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Confirm")
+                    }
+
+            }
+    }
+}
 
 @Composable
 fun FileNameInputField(
@@ -238,7 +289,7 @@ fun FileNameInputField(
             label = { Text("Filename") }
         )
         Button(
-            onClick = {setFilename(input)}
+            onClick = {setFilename(input) }
         ) {
             Text("Set name")
         }

@@ -74,11 +74,12 @@ class MainViewModel : ViewModel() {
     /*
     Filename
      */
-    var filename by mutableStateOf("")
+    private var _fileName = MutableStateFlow("")
+    var fileName = _fileName.asStateFlow()
     private set
 
     fun updateFileName(input: String){
-        filename = input
+        _fileName.update { input }
     }
 
 

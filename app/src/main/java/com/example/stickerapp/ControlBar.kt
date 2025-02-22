@@ -120,7 +120,7 @@ import kotlinx.coroutines.launch
             }
             //Download Button
             IconButton(
-                onClick = {onShowClick()}
+                onClick = {onInputClick()}
             )  {
                 Icon(
                     painterResource(R.drawable.ic_launcher_foreground),
