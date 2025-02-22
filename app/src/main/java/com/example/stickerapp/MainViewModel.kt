@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
@@ -21,6 +22,30 @@ class MainViewModel : ViewModel() {
 
     private var _pointerSize = MutableStateFlow(5f)
     var pointerSize = _pointerSize.asStateFlow()
+
+    private var _canvasScale = MutableStateFlow(1f)
+    var canvasScale = _canvasScale.asStateFlow()
+
+    fun changeScale(scale: Float)
+    {
+        _canvasScale.update { scale }
+    }
+
+    private var _canvasRotation = MutableStateFlow(0f)
+    var canvasRotation = _canvasRotation.asStateFlow()
+
+    fun changeRotation(rot: Float)
+    {
+        _canvasRotation.update { rot }
+    }
+
+    private var _canvasOffset = MutableStateFlow(Offset.Zero)
+    var canvasOffset = _canvasOffset.asStateFlow()
+
+    fun changeOffset(pan : Offset)
+    {
+        _canvasOffset.update { pan }
+    }
 
     private var _canvasSize = MutableStateFlow(500.dp)
     var canvasSize = _canvasSize.asStateFlow()

@@ -42,6 +42,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.ImageBitmap
@@ -56,6 +57,7 @@ import com.example.stickerapp.ui.theme.StickerAppTheme
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -162,8 +164,16 @@ fun DrawingScreen(
 
     val context = LocalContext.current
 
+    fun resetState(){
+        viewModel.setMode(false)
+        viewModel.changeScale(1f)
+        viewModel.changeRotation(0f)
+        viewModel.changeOffset(Offset.Zero)
+    }
     fun downloadBitmap() {
         uiScope.launch {
+            resetState()
+            delay(1000)
             canvasBitmap = captureController.captureAsync().await()
             canvasBitmap?.asAndroidBitmap()?.let { save(it) }
         }
@@ -194,12 +204,13 @@ fun DrawingScreen(
         ControlBar(
             drawController = drawController,
             viewModel = viewModel,
-            onDownloadClick = { downloadBitmap()
-                              saveFileMediaStore(context, formattedTime, fileName.value)
+            onDownloadClick = {
+                downloadBitmap()
+                saveFileMediaStore(context, formattedTime, fileName.value)
             },
             onShowClick = { showBitmap()},
             onInputClick = { showInput()},
-            stopwatchStart = {},
+            stopwatchStart = { resetState() },
             stopwatchStop = {onPauseClick()}
         )
 
@@ -267,52 +278,31 @@ fun DialogWithTextField(
                     modifier = Modifier.padding(16.dp),
                 )
 
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    label = { Text("Filename") }
-                )
+                Row(modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.Center) {
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        label = { Text("Filename") }
+                    )
                     TextButton(
                         onClick = {
-                            if(text.isNotEmpty()){
+                            if (text.isNotEmpty()) {
                                 onConfirmation(text)
-                                  onDismissRequest()}
-                                  },
+                                onDismissRequest()
+                            }
+                        },
                         modifier = Modifier.padding(8.dp),
                     ) {
                         Text("Confirm")
                     }
+                }
 
             }
     }
 }
 
-@Composable
-fun FileNameInputField(
-    setFilename:(String) -> Unit,
-    isVisible: Boolean
-){
-    AnimatedVisibility(
-        visible = isVisible
-    ) { }
-    Box(
-        modifier = Modifier.padding(20.dp)
-            .size(300.dp)
 
-    ){
-        var input by remember { mutableStateOf("")}
-        OutlinedTextField(
-            value = input,
-            onValueChange = { input = it},
-            label = { Text("Filename") }
-        )
-        Button(
-            onClick = {setFilename(input) }
-        ) {
-            Text("Set name")
-        }
-    }
-}
 
 @RequiresApi(Build.VERSION_CODES.Q)
 private fun saveFileMediaStore(context: Context, content: String, fileName: String){

@@ -22,6 +22,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +48,7 @@ import kotlinx.coroutines.launch
     stopwatchStop: () -> Unit
     ) {
 
-    val uiScope = rememberCoroutineScope()
-    var checked by remember { mutableStateOf(false) }
-    //var canvasBitmap: ImageBitmap? by remember { mutableStateOf(null) }
+    val mode = viewModel.dragMode.collectAsState()
 
         Row(
             modifier = Modifier.padding(12.dp),
@@ -139,12 +138,11 @@ import kotlinx.coroutines.launch
 
             // For changing to TransformMode
             Switch(
-                checked = checked, // the initial state of the switch
+                checked = mode.value, // the initial state of the switch
                 onCheckedChange = {
                     viewModel.setMode(it)
-                    checked = it
                 },
-                thumbContent = if (checked) {
+                thumbContent = if (mode.value) {
                     {
                         Icon(
                             painterResource(R.drawable.drag_pan_24px),

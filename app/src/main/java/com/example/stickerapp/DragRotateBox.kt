@@ -86,6 +86,15 @@ fun DragRotateBox(
                         scaleY = scale
                     )
                     .size(boxSize)
+                    .pointerInput(Unit) {
+                        detectTransformGestures(
+                            onGesture = { gestureCentroid, gesturePan, _, _ ->
+                                position += gesturePan.rotateBy(rotation) * scale
+                                //scale *=gestureZoom
+                                centroid = gestureCentroid
+                            }
+                        )
+                    }
                     .combinedClickable(
                         onClick = {},
                         onLongClick = {
@@ -113,20 +122,6 @@ fun DragRotateBox(
                     enter = scaleIn(),
                     exit = scaleOut()
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(boxSize)
-                            .paint(painterResource(R.drawable.drag_pan_24px), alpha = 0.5f)
-                            .pointerInput(Unit) {
-                                detectTransformGestures(
-                                    onGesture = { gestureCentroid, gesturePan, _, _ ->
-                                        position += gesturePan.rotateBy(rotation) * scale
-                                        //scale *=gestureZoom
-                                        centroid = gestureCentroid
-                                    }
-                                )
-                            }
-                    ) {
                         //Delete Handler
                         Box(
                             modifier = Modifier
@@ -218,7 +213,7 @@ fun DragRotateBox(
 //                            )
 //                        }
                     }
-                }
+
 
             }
         }
