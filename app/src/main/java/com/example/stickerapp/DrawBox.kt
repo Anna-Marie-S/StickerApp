@@ -44,7 +44,6 @@ fun DrawBox(
     drawController: DrawController,
     viewModel: MainViewModel,
     captureController: CaptureController,
-    //bitmapCallback: (ImageBitmap?, Throwable?) -> Unit,
     modifier: Modifier = Modifier
 ){
 
@@ -52,24 +51,19 @@ fun DrawBox(
     val dragMode by viewModel.dragMode.collectAsState()
     val list = viewModel.stickerList
 
-
+    val scaleVM = viewModel.canvasScale.collectAsState()
+    val rotationVM = viewModel.canvasRotation.collectAsState()
+    val offsetVM = viewModel.canvasOffset.collectAsState()
     var scale by remember { mutableFloatStateOf(1f) }
     var rotation by remember { mutableFloatStateOf(0f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
     val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
-        scale *= zoomChange
-        rotation += rotationChange
-        offset += offsetChange
+        viewModel.changeScale(scaleVM.value * zoomChange)
+        viewModel.changeRotation(rotationVM.value + rotationChange)
+        viewModel.changeOffset(offsetVM.value + offsetChange)
     }
-                var size by remember { mutableStateOf(10000.dp) }
-                fun resetState(){
-                    scale = 1f
-                    rotation = 0f
-                    offset = Offset.Zero
-                }
-                fun makeBigger(){
-                    size += 300.dp
-                }
+    val size by remember { mutableStateOf(4000.dp) }
+
 
     Box(
         Modifier.clipToBounds()
@@ -78,11 +72,11 @@ fun DrawBox(
             .fillMaxSize()
             .capturable(captureController)
             .graphicsLayer(
-            scaleX = scale,
-            scaleY = scale,
-            rotationZ = rotation,
-            translationX = offset.x,
-            translationY = offset.y
+            scaleX = scaleVM.value,
+            scaleY = scaleVM.value,
+            rotationZ = rotationVM.value,
+            translationX = offsetVM.value.x,
+            translationY = offsetVM.value.y
             )) {
             Canvas(
                 modifier = modifier
@@ -126,10 +120,6 @@ fun DrawBox(
                     )
                 }
             }
-        }
-        Row(modifier = Modifier.padding(12.dp)) {
-            Button(onClick = { resetState() }) { Text("Reset Canvas") }
-            Button(onClick = { }) { Text("Save") }
         }
 
         CustomTouchPad(dragMode, state)
