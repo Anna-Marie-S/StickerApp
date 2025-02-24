@@ -5,16 +5,15 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.TransformableState
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.requiredSizeIn
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,12 +27,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.unit.dp
+import com.example.stickerapp.Stylus.StylusState
 import dev.shreyaspatil.capturable.capturable
 import dev.shreyaspatil.capturable.controller.CaptureController
 
@@ -44,6 +42,7 @@ fun DrawBox(
     drawController: DrawController,
     viewModel: MainViewModel,
     captureController: CaptureController,
+    stylusState: StylusState,
     modifier: Modifier = Modifier
 ){
 
@@ -57,13 +56,12 @@ fun DrawBox(
     var scale by remember { mutableFloatStateOf(1f) }
     var rotation by remember { mutableFloatStateOf(0f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
-    val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
-        viewModel.changeScale(scaleVM.value * zoomChange)
+    val state = rememberTransformableState { _, offsetChange, rotationChange ->
+
         viewModel.changeRotation(rotationVM.value + rotationChange)
         viewModel.changeOffset(offsetVM.value + offsetChange)
     }
-    val size by remember { mutableStateOf(4000.dp) }
-
+    val addOn = viewModel.canvasAddOn.collectAsState()
 
     Box(
         Modifier.clipToBounds()
@@ -80,34 +78,43 @@ fun DrawBox(
             )) {
             Canvas(
                 modifier = modifier
-                    .size(size)
+                    .fillMaxSize()
+                    .requiredSize(1000.dp + addOn.value)
                     .background(if(dragMode){Color.Yellow}else{Color.White}) // better the other way around
                     .clipToBounds()
-                    .pointerInput(Unit) {
-
-                        detectDragGestures(
-                            onDragStart = { offset ->
-                                drawController.insertNewPath(offset)
-                            }
-                        ) { change, _ ->
-                            val newPoint = change.position
-                            drawController.updateLatestPath(newPoint)
-                        }
+                    .pointerInteropFilter {
+                        viewModel.processMotionEvent(it)
                     }
+//                    .pointerInput(Unit) {
+//                        detectDragGestures(
+//                            onDragStart = { offset ->
+//                                drawController.insertNewPath(offset)
+//                            }
+//                        ) { change, _ ->
+//                            val newPoint = change.position
+//                            drawController.updateLatestPath(newPoint)
+//                        }
+//                    }
             ) {
-                    drawController.pathList.forEach { pw ->
-                        drawPath(
-                            createPath(pw.points),
-                            color = pw.strokeColor,
-                            alpha = 1f,
-                            style = Stroke(
-                                width = pw.strokeWidth,
-                                cap = StrokeCap.Round,
-                                join = StrokeJoin.Round
-                            )
-                        )
-
+                with(stylusState) {
+                    drawPath(
+                        path = this.path,
+                        color = Color.Gray,
+                        style = Stroke(10F)
+                    )
                 }
+//                    drawController.pathList.forEach { pw ->
+//                        drawPath(
+//                            createPath(pw.points),
+//                            color = pw.strokeColor,
+//                            alpha = 1f,
+//                            style = Stroke(
+//                                width = pw.strokeWidth,
+//                                cap = StrokeCap.Round,
+//                                join = StrokeJoin.Round
+//                            )
+//                        )
+//                    }
 
             }
             list.forEach { sticker ->

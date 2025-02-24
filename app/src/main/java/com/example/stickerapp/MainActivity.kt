@@ -45,6 +45,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.example.stickerapp.Stylus.StylusState
 import com.example.stickerapp.ui.theme.StickerAppTheme
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.launch
@@ -52,10 +56,20 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
-
+    private var stylusState: StylusState by mutableStateOf(StylusState())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.stylusState
+                    .onEach {
+                        stylusState = it
+                    }
+                    .collect()
+            }
+        }
         enableEdgeToEdge()
         setContent {
 
@@ -65,7 +79,8 @@ class MainActivity : ComponentActivity() {
                     viewModel = viewModel,
                     formattedTime = stopwatch.formattedTime,
                     onStartClick = stopwatch::start,
-                    onPauseClick = stopwatch::pause
+                    onPauseClick = stopwatch::pause,
+                    stylusState = stylusState,
                 ) {
                     checkAndAskPermission {
                         CoroutineScope(Dispatchers.IO).launch {
@@ -135,7 +150,9 @@ fun DrawingScreen(
     formattedTime: String,
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
-    save: (Bitmap) -> Unit) {
+    stylusState: StylusState,
+    save: (Bitmap) -> Unit,
+    ) {
 
     val drawController = rememberDrawController()
     val captureController = rememberCaptureController()
@@ -146,13 +163,13 @@ fun DrawingScreen(
     var fileName = viewModel.fileName.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
-    var inputBoxVisible by remember { mutableStateOf(true) }
+    var inputBoxVisible = viewModel.inputVisible.collectAsState()
 
     val context = LocalContext.current
 
     fun resetState(){
         viewModel.setMode(false)
-        viewModel.changeScale(1f)
+        viewModel.changeScale(0.3f)
         viewModel.changeRotation(0f)
         viewModel.changeOffset(Offset.Zero)
     }
@@ -170,12 +187,17 @@ fun DrawingScreen(
         showDialog = true
     }
     fun showInput() {
-        inputBoxVisible = !inputBoxVisible
+        if (inputBoxVisible.value)
+        {
+            viewModel.setInputVisibility(false)
+        } else {
+            viewModel.setInputVisibility(true)
+        }
     }
 
-    if(inputBoxVisible) {
+    if(inputBoxVisible.value) {
         DialogWithTextField(
-            onDismissRequest = {inputBoxVisible = false},
+            onDismissRequest = {viewModel.setInputVisibility(false)},
             onConfirmation = {viewModel.updateFileName(it)
             onStartClick()}
         )
@@ -204,7 +226,8 @@ fun DrawingScreen(
             DrawBox(
                 drawController = drawController,
                 viewModel = viewModel,
-                captureController = captureController
+                captureController = captureController,
+                stylusState = stylusState
             )
         }
     }
@@ -244,12 +267,12 @@ fun DialogWithTextField(
     onDismissRequest: () -> Unit,
     onConfirmation: (String) -> Unit
 ) {
-    Dialog(onDismissRequest = { }) {
+    Dialog(onDismissRequest = { onDismissRequest()}) {
         var text by remember { mutableStateOf("") }
-
+        var textEnabled by remember { mutableStateOf(true) }
             Column(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .size(300.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -263,12 +286,14 @@ fun DialogWithTextField(
                     OutlinedTextField(
                         value = text,
                         onValueChange = { text = it },
-                        label = { Text("Filename") }
+                        label = { Text("Filename") },
+                        enabled = textEnabled
                     )
                     TextButton(
                         onClick = {
                             if (text.isNotEmpty()) {
                                 onConfirmation(text)
+                                textEnabled = false
                                 onDismissRequest()
                             }
                         },
