@@ -1,19 +1,34 @@
 package com.example.stickerapp
 
+import android.os.Build
+import android.view.MotionEvent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import com.example.stickerapp.Stylus.DrawPoint
+import com.example.stickerapp.Stylus.DrawPointType
+import com.example.stickerapp.Stylus.StylusState
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class MainViewModel : ViewModel() {
+
+    private var _inputVisible = MutableStateFlow(false)
+    var inputVisible = _inputVisible.asStateFlow()
+
+    fun setInputVisibility(boolean: Boolean){
+        _inputVisible.update { boolean }
+    }
+
     /*
     Canvas Things
      */
@@ -47,8 +62,8 @@ class MainViewModel : ViewModel() {
         _canvasOffset.update { pan }
     }
 
-    private var _canvasSize = MutableStateFlow(500.dp)
-    var canvasSize = _canvasSize.asStateFlow()
+    private var _canvasAddOn = MutableStateFlow(100.dp)
+    var canvasAddOn = _canvasAddOn.asStateFlow()
 
     fun setMode(boolean: Boolean){
         _dragMode.update { boolean }
@@ -60,8 +75,8 @@ class MainViewModel : ViewModel() {
     }
 
     fun increaseCanvasSize(){
-        var oldSize = _canvasSize.value
-        _canvasSize.update { oldSize + 300.dp }
+        var oldSize = _canvasAddOn.value
+        _canvasAddOn.update { oldSize + 100.dp }
     }
 
 
@@ -106,6 +121,103 @@ class MainViewModel : ViewModel() {
     fun updateFileName(input: String){
         _fileName.update { input }
     }
+
+    /*
+    Stylus Stuff
+     */
+
+    private var currentPath = mutableListOf<DrawPoint>()
+
+    private var _stylusState = MutableStateFlow(StylusState())
+    val stylusState: StateFlow<StylusState> = _stylusState
+
+    private fun requestRendering(stylusState: StylusState){
+        _stylusState.update {
+            return@update stylusState
+        }
+    }
+
+    private fun creathePath(): Path {
+        val path = Path()
+
+        currentPath.forEach { point ->
+            if (point.type == DrawPointType.START) {
+                path.moveTo(point.x, point.y)
+            } else {
+                path.lineTo(point.x, point.y)
+            }
+        }
+        return path
+    }
+
+    private fun cancelLastStroke() {
+        // Find the last START event.
+        val lastIndex = currentPath.findLastIndex {
+            it.type == DrawPointType.START
+        }
+
+        // If found, keep the element from 0 until the very last event before the last MOVE event.
+        if (lastIndex > 0) {
+            currentPath = currentPath.subList(0, lastIndex - 1)
+        }
+
+    }
+
+
+    fun processMotionEvent(motionEvent: MotionEvent): Boolean {
+        when (motionEvent.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                currentPath.add(
+                    DrawPoint(motionEvent.x, motionEvent.y, DrawPointType.START)
+                )
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                currentPath.add(DrawPoint(motionEvent.x, motionEvent.y, DrawPointType.LINE))
+            }
+            MotionEvent.ACTION_POINTER_UP,
+            MotionEvent.ACTION_UP -> {
+                val canceled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                        (motionEvent.flags and MotionEvent.FLAG_CANCELED) == MotionEvent.FLAG_CANCELED
+
+                if(canceled) {
+                    cancelLastStroke()
+                } else {
+                    currentPath.add(DrawPoint(motionEvent.x, motionEvent.y, DrawPointType.LINE))
+                }
+
+            }
+
+            MotionEvent.ACTION_CANCEL -> {
+                // Unwanted touch detected.
+                cancelLastStroke()
+            }
+
+            else -> return false
+        }
+        requestRendering(StylusState(
+            tilt = motionEvent.getAxisValue(MotionEvent.AXIS_TILT),
+            pressure = motionEvent.pressure,
+            orientation = motionEvent.orientation,
+            path = creathePath()
+        ))
+        return true
+    }
+
+
+    inline fun <T> List<T>.findLastIndex(predicate: (T) -> Boolean): Int {
+        val iterator = this.listIterator(size)
+        var count = 1
+        while (iterator.hasPrevious()) {
+            val element = iterator.previous()
+            if (predicate(element)) {
+                return size - count
+            }
+            count++
+        }
+        return -1
+    }
+
 
 
 }

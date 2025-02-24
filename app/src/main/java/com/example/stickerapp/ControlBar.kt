@@ -7,8 +7,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.DropdownMenu
@@ -26,16 +27,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
-import dev.shreyaspatil.capturable.controller.CaptureController
-import kotlinx.coroutines.launch
 
 @Composable
     fun ControlBar(
@@ -47,13 +43,33 @@ import kotlinx.coroutines.launch
     stopwatchStart: () ->Unit,
     stopwatchStop: () -> Unit
     ) {
+        val mode = viewModel.dragMode.collectAsState()
 
-    val mode = viewModel.dragMode.collectAsState()
 
         Row(
             modifier = Modifier.padding(12.dp),
             horizontalArrangement = Arrangement.Center
         ) {
+            IconButton(
+                onClick = {
+                    onShowClick()}
+            )  {
+                Icon(
+                    Icons.Default.Info,
+                    contentDescription = "Info",
+                    tint = Color.Black
+                )
+            }
+            IconButton(
+                onClick = {
+                    viewModel.increaseCanvasSize()}
+            )  {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Add",
+                    tint = Color.Black
+                )
+            }
             //Black Pen
             IconButton(
                 onClick = {
@@ -178,7 +194,7 @@ fun EraserMenu(
         drawController.changeColor(Color.White)}) {
             Row {
                 Icon(painterResource(R.drawable.ink_eraser_24px), tint = MaterialTheme.colorScheme.primary, contentDescription = "Eraser")
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Stickermenu")
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Sticker menu")
             }
         }
         DropdownMenu(
@@ -222,7 +238,7 @@ fun StickerMenu(
         TextButton(onClick = {expanded = !expanded}) {
             Row {
                 Text("Stickers")
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Stickermenu")
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Sticker menu")
             }
         }
         DropdownMenu(
