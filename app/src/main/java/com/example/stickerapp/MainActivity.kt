@@ -185,7 +185,7 @@ fun DrawingScreen(
 
     fun resetState(){
         viewModel.setMode(false)
-        viewModel.changeScale(0.3f)
+        viewModel.resetCanvas()
         viewModel.changeRotation(0f)
         viewModel.changeOffset(Offset.Zero)
     }

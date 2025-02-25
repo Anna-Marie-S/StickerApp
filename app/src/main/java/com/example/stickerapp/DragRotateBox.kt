@@ -6,23 +6,17 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -54,111 +47,116 @@ fun DragRotateBox(
         resource: Sticker,
         onDelete: (Sticker) -> Unit
     ) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val boxSize = 100.dp
+        val handleSize = 20.dp
+        var rotation by remember { mutableStateOf(0f) }
+        var scale by remember { mutableStateOf(1f) }
+        var centroid by remember { mutableStateOf(Offset.Zero) }
+        val boxSizePx = with(LocalDensity.current) { boxSize.toPx() }
+        val center = Offset(boxSizePx, boxSizePx)
+
+        var position by remember { mutableStateOf(Offset(300f, 300f)) }
+
+        var selected by remember { mutableStateOf(false) }
+
+        // Main Border Box
         Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            var rotation by remember { mutableStateOf(0f) }
-            var scale by remember { mutableStateOf(1f) }
-            var centroid by remember { mutableStateOf(Offset.Zero) }
+            modifier = Modifier
+                .graphicsLayer(
+                    rotationZ = rotation,
+                    translationX = position.x,
+                    translationY = position.y,
+                    scaleX = scale,
+                    scaleY = scale
+                )
+                .size(boxSize)
+                .pointerInput(Unit) {
+                    detectTransformGestures(
+                        onGesture = { gestureCentroid, gesturePan, _, _ ->
+                            position += gesturePan.rotateBy(rotation) * scale
+                            //scale *=gestureZoom
+                            centroid = gestureCentroid
+                        }
+                    )
+                }
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = {
+                        selected = true
+                    },
+                    onLongClickLabel = "open Menu"
+                )
 
-            var position by remember { mutableStateOf(Offset(300f, 300f)) }
-
-
-            val boxSize = 100.dp
-            val handleSize = 20.dp
-
-            var initialTouch = Offset.Zero
-
-            var selected by remember { mutableStateOf(false) }
-
-            val boxSizePx = with(LocalDensity.current) { boxSize.toPx() }
-
-            val center = Offset(boxSizePx, boxSizePx)
-
-            // Main Border Box
+        )
+        {
+            // Image holding Box
             Box(
                 modifier = Modifier
-                    .graphicsLayer(
-                        rotationZ = rotation,
-                        translationX = position.x,
-                        translationY = position.y,
-                        scaleX = scale,
-                        scaleY = scale
-                    )
-                    .size(boxSize)
-                    .pointerInput(Unit) {
-                        detectTransformGestures(
-                            onGesture = { gestureCentroid, gesturePan, _, _ ->
-                                position += gesturePan.rotateBy(rotation) * scale
-                                //scale *=gestureZoom
-                                centroid = gestureCentroid
-                            }
-                        )
-                    }
-                    .combinedClickable(
-                        onClick = {},
-                        onLongClick = {
-                            selected = true},
-                        onLongClickLabel = "open Menu"
-                    )
-
-            )
-            {
-                // Image holding Box
-                Box(modifier = Modifier
                     .size(60.dp)
-                    .align(Alignment.Center)) {
-                    Image(
-                        painter = painterResource(resource.image),
-                        contentDescription = resource.name,
-                        modifier = Modifier.fillMaxSize()
+                    .align(Alignment.Center)
+            ) {
+                Image(
+                    painter = painterResource(resource.image),
+                    contentDescription = resource.name,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+            }
+
+
+            AnimatedVisibility(
+                visible = selected,
+                enter = scaleIn(),
+                exit = scaleOut()
+            ) {Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                //Delete Handler
+                Box(
+                    modifier = Modifier
+                        .size(handleSize)
+                        .clip(CircleShape)
+                        .background(Color.Red)
+                        .align(Alignment.TopStart)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { onDelete(resource) }
+                            )
+                        }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Delete"
+                    )
+                }
+
+                // To unselect
+                Box(
+                    modifier = Modifier
+                        .size(handleSize)
+                        .clip(CircleShape)
+                        .background(Color.Cyan)
+                        .align(Alignment.TopEnd)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { selected = false }
+                            )
+                        }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "Close Menu"
                     )
 
                 }
-
-
-                AnimatedVisibility(
-                    visible = selected,
-                    enter = scaleIn(),
-                    exit = scaleOut()
-                ) {
-                        //Delete Handler
-                        Box(
-                            modifier = Modifier
-                                .size(handleSize)
-                                .clip(CircleShape)
-                                .background(Color.Red)
-                                .align(Alignment.TopStart)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onTap = { onDelete(resource) }
-                                    )
-                                }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Delete,
-                                contentDescription = "Delete"
-                            )
-                        }
-
-                        // To unselect
-                        Box(
-                            modifier = Modifier
-                                .size(handleSize)
-                                .clip(CircleShape)
-                                .background(Color.Cyan)
-                                .align(Alignment.TopEnd)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onTap = { selected = false }
-                                    )
-                                }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Close,
-                                contentDescription = "Close Menu"
-                            )
-                        }
+            }
+            }
+        }
+    }
+}
                         // Rotation handler
 //                        Box(
 //                            modifier = Modifier
@@ -212,12 +210,12 @@ fun DragRotateBox(
 //                                contentDescription = "Zoom",
 //                            )
 //                        }
-                    }
 
 
-            }
-        }
-    }
+
+
+
+
 
     // Generated by ChatGPT! from StackOverflow
     fun calculateRotationAngle(pivot: Offset, initialTouch: Offset, currentTouch: Offset): Float {

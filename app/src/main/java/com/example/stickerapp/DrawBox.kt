@@ -56,9 +56,8 @@ fun DrawBox(
     var scale by remember { mutableFloatStateOf(1f) }
     var rotation by remember { mutableFloatStateOf(0f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
-    val state = rememberTransformableState { _, offsetChange, rotationChange ->
-
-        viewModel.changeRotation(rotationVM.value + rotationChange)
+    val state = rememberTransformableState { zoomChange, offsetChange, _ ->
+        viewModel.changeScale(scaleVM.value * zoomChange)
         viewModel.changeOffset(offsetVM.value + offsetChange)
     }
     val addOn = viewModel.canvasAddOn.collectAsState()
@@ -78,8 +77,8 @@ fun DrawBox(
             )) {
             Canvas(
                 modifier = modifier
-                    .fillMaxSize()
-                    .requiredSize(1000.dp + addOn.value)
+                    .size(300.dp)
+                    .requiredWidth(300.dp + addOn.value)
                     .background(if(dragMode){Color.Yellow}else{Color.White}) // better the other way around
                     .clipToBounds()
                     .pointerInteropFilter {
