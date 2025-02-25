@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlin.math.pow
 
 class MainViewModel : ViewModel() {
 
@@ -77,6 +78,20 @@ class MainViewModel : ViewModel() {
     fun increaseCanvasSize(){
         var oldSize = _canvasAddOn.value
         _canvasAddOn.update { oldSize + 100.dp }
+    }
+
+    fun resetCanvas(){
+        _canvasScale.update { calculateResetScale() }
+    }
+
+    private fun calculateResetScale(): Float{
+        var startingSize = 300f
+        var base = _canvasScale.value + startingSize
+        var newSize = base.pow(2)
+        var oldSize = startingSize.pow(2)
+        var newScale = newSize / oldSize
+        println("started with $startingSize, then went to $base now the scale is $newScale")
+        return newScale
     }
 
 
