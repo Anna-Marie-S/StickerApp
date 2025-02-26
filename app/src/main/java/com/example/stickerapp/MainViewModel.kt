@@ -5,8 +5,10 @@ import android.view.MotionEvent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -146,12 +148,21 @@ class MainViewModel : ViewModel() {
     private var _stylusState = MutableStateFlow(StylusState())
     val stylusState: StateFlow<StylusState> = _stylusState
 
+
+
     private fun requestRendering(stylusState: StylusState){
         _stylusState.update {
             return@update stylusState
         }
     }
 
+    fun changePenColor(color: Color){
+        _stylusState.value.color = color
+    }
+
+    fun clearPaths(){
+        currentPath.clear()
+    }
     private fun creathePath(): Path {
         val path = Path()
 

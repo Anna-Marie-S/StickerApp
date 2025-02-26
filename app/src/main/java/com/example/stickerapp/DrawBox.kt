@@ -5,6 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.TransformableState
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
@@ -27,8 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.unit.dp
 import com.example.stickerapp.Stylus.StylusState
@@ -78,28 +82,28 @@ fun DrawBox(
             Canvas(
                 modifier = modifier
                     .size(300.dp)
-                    .requiredWidth(300.dp + addOn.value)
+                    .requiredSize(10000.dp)
                     .background(if(dragMode){Color.Yellow}else{Color.White}) // better the other way around
                     .clipToBounds()
                     .pointerInteropFilter {
-                        viewModel.processMotionEvent(it)
+                     viewModel.processMotionEvent(it)
                     }
-//                    .pointerInput(Unit) {
-//                        detectDragGestures(
-//                            onDragStart = { offset ->
-//                                drawController.insertNewPath(offset)
-//                            }
-//                        ) { change, _ ->
-//                            val newPoint = change.position
-//                            drawController.updateLatestPath(newPoint)
-//                        }
-//                    }
+                    .pointerInput(Unit) {
+                        detectDragGestures(
+                            onDragStart = { offset ->
+                                drawController.insertNewPath(offset)
+                            }
+                        ) { change, _ ->
+                            val newPoint = change.position
+                            drawController.updateLatestPath(newPoint)
+                        }
+                    }
             ) {
                 with(stylusState) {
                     drawPath(
                         path = this.path,
-                        color = Color.Gray,
-                        style = Stroke(10F)
+                        color = this.color,
+                        style = Stroke(this.strokeWidth)
                     )
                 }
 //                    drawController.pathList.forEach { pw ->

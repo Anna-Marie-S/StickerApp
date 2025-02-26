@@ -36,52 +36,37 @@ import androidx.compose.ui.unit.dp
 @Composable
     fun ControlBar(
     drawController: DrawController,
-    viewModel: MainViewModel,
-    onDownloadClick: () -> Unit,
-    onShowClick: () -> Unit,
-    onInputClick: () -> Unit,
-    stopwatchStart: () ->Unit,
-    stopwatchStop: () -> Unit
+    viewModel: MainViewModel
     ) {
-        val mode = viewModel.dragMode.collectAsState()
 
+        val mode = viewModel.dragMode.collectAsState()
 
         Row(
             modifier = Modifier.padding(12.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            IconButton(
-                onClick = {
-                    onShowClick()}
-            )  {
-                Icon(
-                    Icons.Default.Info,
-                    contentDescription = "Info",
-                    tint = Color.Black
-                )
-            }
-            IconButton(
-                onClick = {
-                    viewModel.increaseCanvasSize()}
-            )  {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add",
-                    tint = Color.Black
-                )
-            }
             //Black Pen
             IconButton(
                 onClick = {
-                    drawController.changeColor(Color.Black)
-                drawController.changeStrokeWidth(5f)}
+                    viewModel.changePenColor(Color.Green)}
             )  {
                 Icon(
                     painterResource(R.drawable.stylus_note_24px),
                     contentDescription = "Pen",
-                    tint = Color.Black
+                    tint = Color.Green
+                )
+            }//Red Pen
+            IconButton(
+                onClick = {
+                    viewModel.changePenColor(Color.Red)}
+            )  {
+                Icon(
+                    painterResource(R.drawable.stylus_note_24px),
+                    contentDescription = "Pen",
+                    tint = Color.Red
                 )
             }
+
             //Eraser makes Size Choices
             EraserMenu(drawController)
             // Undo Button
@@ -114,43 +99,9 @@ import androidx.compose.ui.unit.dp
                     tint = Color.Black
                 )
             }
-            //Download Button
-            IconButton(
-                onClick = {onDownloadClick()
-                stopwatchStop()}
-            )  {
-                Icon(
-                    painterResource(R.drawable.download_24px),
-                    contentDescription = "Save"
-                )
-            }
-            //Download Button
-            IconButton(
-                onClick = {stopwatchStart()}
-            )  {
-                Icon(
-                    Icons.Default.PlayArrow,
-                    contentDescription = "Start"
-                )
-            }
-            //Download Button
-            IconButton(
-                onClick = {onInputClick()}
-            )  {
-                Icon(
-                    painterResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = "Show"
-                )
-            }
-
-
 
             //Sticker DropDownMenu
             StickerMenu(viewModel)
-
-              //Image(canvasBitmap!!, contentDescription = null)
-
-
 
             // For changing to TransformMode
             Switch(
