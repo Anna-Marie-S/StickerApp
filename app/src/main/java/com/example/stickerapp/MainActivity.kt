@@ -175,8 +175,6 @@ fun DrawingScreen(
     }
     fun downloadBitmap() {
         uiScope.launch {
-            resetState()
-            delay(1000)
             canvasBitmap = captureController.captureAsync().await()
             canvasBitmap?.asAndroidBitmap()?.let { save(it) }
         }
@@ -194,6 +192,7 @@ fun DrawingScreen(
             viewModel.setInputVisibility(true)
         }
     }
+    fun showInfoBox(){}
 
     if(inputBoxVisible.value) {
         DialogWithTextField(
@@ -241,7 +240,7 @@ fun DrawingScreen(
                             .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Preview of Ticket image \uD83D\uDC47")
+                        Text("Your Painting")
                         Spacer(Modifier.size(16.dp))
                         Image(
                             bitmap = bitmap,
