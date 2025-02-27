@@ -215,10 +215,7 @@ fun DrawingScreen(
             saveFileMediaStore(context, formattedTime, fileName.value)
             }
         )
-        ControlBar(
-            drawController = drawController,
-            viewModel = viewModel
-        )
+
 
         //with the DrawBox and the StickerList
         Box(

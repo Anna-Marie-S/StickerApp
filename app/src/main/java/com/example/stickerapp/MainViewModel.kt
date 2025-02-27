@@ -69,10 +69,6 @@ class MainViewModel : ViewModel() {
         println("VM says paintMode is ${pointerSize.value}")
     }
 
-    fun increaseCanvasSize(){
-        var oldSize = _canvasAddOn.value
-        _canvasAddOn.update { oldSize + 100.dp }
-    }
 
     fun resetCanvas(){
         _canvasScale.update { calculateResetScale() }
@@ -145,6 +141,9 @@ class MainViewModel : ViewModel() {
     fun changePenColor(color: Color){
         _penColor.update { color }
     }
+
+    private var _paths = MutableStateFlow(listOf(Pair(Path, PathProperties())))
+    val paths = _paths.asStateFlow()
 
 
 
