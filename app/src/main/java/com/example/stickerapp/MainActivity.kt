@@ -9,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,11 +22,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,7 +45,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.stickerapp.Stylus.StylusState
 import com.example.stickerapp.ui.theme.StickerAppTheme
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.launch
@@ -56,20 +52,9 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
-    private var stylusState: StylusState by mutableStateOf(StylusState())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.stylusState
-                    .onEach {
-                        stylusState = it
-                    }
-                    .collect()
-            }
-        }
         enableEdgeToEdge()
         setContent {
 
@@ -80,7 +65,6 @@ class MainActivity : ComponentActivity() {
                     formattedTime = stopwatch.formattedTime,
                     onStartClick = stopwatch::start,
                     onPauseClick = stopwatch::pause,
-                    stylusState = stylusState,
                 ) {
                     checkAndAskPermission {
                         CoroutineScope(Dispatchers.IO).launch {
@@ -150,7 +134,6 @@ fun DrawingScreen(
     formattedTime: String,
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
-    stylusState: StylusState,
     save: (Bitmap) -> Unit,
     ) {
 
@@ -161,6 +144,7 @@ fun DrawingScreen(
     var canvasBitmap: ImageBitmap? by remember { mutableStateOf(null) }
 
     var fileName = viewModel.fileName.collectAsState()
+
 
     var showDialog by remember { mutableStateOf(false) }
     var inputBoxVisible = viewModel.inputVisible.collectAsState()
@@ -226,7 +210,6 @@ fun DrawingScreen(
                 drawController = drawController,
                 viewModel = viewModel,
                 captureController = captureController,
-                stylusState = stylusState
             )
         }
     }
