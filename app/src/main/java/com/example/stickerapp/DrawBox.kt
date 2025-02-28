@@ -1,15 +1,12 @@
 package com.example.stickerapp
 
-import com.example.stickerapp.MotionEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.TransformableState
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,13 +29,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import dev.shreyaspatil.capturable.capturable
 import dev.shreyaspatil.capturable.controller.CaptureController
@@ -79,7 +71,7 @@ fun DrawBox(
      * Previous motion event before next touch is saved into this current position.
      */
     var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
-
+    var stickerPosition by remember { mutableStateOf(Offset(500f, 500f)) }
     /**
      * Draw mode, erase mode or touch mode to
      */
@@ -96,6 +88,8 @@ fun DrawBox(
     val dragMode by viewModel.dragMode.collectAsState()
     val list = viewModel.stickerList
     val penColor = viewModel.penColor.collectAsState()
+
+    val density = LocalDensity.current
 
     val scaleVM = viewModel.canvasScale.collectAsState()
     val rotationVM = viewModel.canvasRotation.collectAsState()
@@ -169,13 +163,7 @@ fun DrawBox(
                     modifier = modifier
                         .size(300.dp)
                         .requiredSize(10000.dp)
-                        .background(
-                            if (dragMode) {
-                                Color.Yellow
-                            } else {
-                                Color.White
-                            }
-                        ) // better the other way around
+                        .background(Color.White)
                         .clipToBounds()
                         .dragMotionEvent(
                             onDragStart = { pointerInputChange ->
@@ -202,6 +190,7 @@ fun DrawBox(
                             },
                             onDragEnd = { pointerInputChange ->
                                 motionEvent = MotionEvent.Up
+                                stickerPosition = pointerInputChange.position
                                 pointerInputChange.consume()
                             }
                         )

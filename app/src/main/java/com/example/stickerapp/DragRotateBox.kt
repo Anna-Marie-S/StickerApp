@@ -58,7 +58,7 @@ fun DragRotateBox(
         val boxSizePx = with(LocalDensity.current) { boxSize.toPx() }
         val center = Offset(boxSizePx, boxSizePx)
 
-        var position by remember { mutableStateOf(Offset(300f, 300f)) }
+        var position by remember { mutableStateOf(Offset(500f, 500f)) }
 
         var selected by remember { mutableStateOf(false) }
 
