@@ -69,25 +69,28 @@ import androidx.compose.ui.window.Dialog
         val properties by rememberUpdatedState(newValue = pathProperties)
         var showStrokeWidthMenu by remember { mutableStateOf(false) }
         var showColorMenu by remember { mutableStateOf(false) }
+        var lastColor by remember { mutableStateOf(Color.Black) }
 
         Row(
             modifier = Modifier.padding(12.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            //Black Pen
+            // Pen
             IconButton(
                 onClick = {
-                    properties.color = Color.Black}
+                    properties.color = lastColor}
             ) {
                 Icon(
                     painterResource(R.drawable.stylus_note_24px),
                     contentDescription = "Pen",
-                    tint = Color.Black
+                    tint = lastColor
                 )
             }
             // Eraser Button
             IconButton(
-                onClick = {properties.color = Color.White}
+                onClick = {
+                    lastColor = if(properties.color != Color.White) properties.color else lastColor
+                    properties.color = Color.White}
             )  {
                 Icon(
                     painterResource(R.drawable.ink_eraser_24px),
@@ -105,11 +108,11 @@ import androidx.compose.ui.window.Dialog
                     contentDescription = "Set Stroke Width",
                     tint = Color.Black
                 )
-            }
+            }// Show Color Menu
             Button(
                 onClick = {showColorMenu = true},
-                colors = ButtonDefaults.buttonColors(properties.color),
-                modifier = Modifier.padding(3.dp).width(40.dp)
+                colors = ButtonDefaults.buttonColors(lastColor),
+                modifier = Modifier.padding(3.dp).width(30.dp)
             ) { }
 
             // Undo Button
@@ -185,6 +188,7 @@ import androidx.compose.ui.window.Dialog
                     onColorClick = {color: Color ->
                         showColorMenu = !showColorMenu
                         properties.color = color
+                        lastColor = color
                     }
                 )
             }
