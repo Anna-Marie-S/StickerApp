@@ -24,6 +24,13 @@ class MainViewModel : ViewModel() {
         _inputVisible.update { boolean }
     }
 
+    private var _cameraDialogVisible = MutableStateFlow(false)
+    var cameraDialogVisible = _cameraDialogVisible.asStateFlow()
+
+    fun setCameraDialogVisibility(boolean: Boolean){
+        _cameraDialogVisible.update { boolean }
+    }
+
     /*
     Canvas Things
      */
@@ -125,6 +132,14 @@ class MainViewModel : ViewModel() {
 
     fun updateFileName(input: String){
         _fileName.update { input }
+    }
+
+    private var _adress = MutableStateFlow("")
+    var adress = _adress.asStateFlow()
+        private set
+
+    fun updateAdress(input: String){
+        _adress.update { input }
     }
 
     /*

@@ -13,7 +13,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,9 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,9 +40,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.example.stickerapp.ui.theme.StickerAppTheme
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.launch
@@ -60,6 +54,8 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             StickerAppTheme {
+                val context = LocalContext.current
+                (context as Activity).requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 val stopwatch = remember { Stopwatch() }
                 DrawingScreen(
                     viewModel = viewModel,
@@ -144,11 +140,12 @@ fun DrawingScreen(
     val uiScope = rememberCoroutineScope()
     var canvasBitmap: ImageBitmap? by remember { mutableStateOf(null) }
 
-    var fileName = viewModel.fileName.collectAsState()
+    val fileName = viewModel.fileName.collectAsState()
 
 
     var showDialog by remember { mutableStateOf(false) }
-    var inputBoxVisible = viewModel.inputVisible.collectAsState()
+    val showCameraDialog = viewModel.cameraDialogVisible.collectAsState()
+    val inputBoxVisible = viewModel.inputVisible.collectAsState()
 
     val context = LocalContext.current
 
@@ -182,12 +179,20 @@ fun DrawingScreen(
     if(inputBoxVisible.value) {
         DialogWithTextField(
             onDismissRequest = {viewModel.setInputVisibility(false)},
-            onConfirmation = {viewModel.updateFileName(it)
-            onStartClick()}
+            onIDConfirmation = {
+                viewModel.updateFileName(it)
+            onStartClick()},
+            onAdressConfirmation = {viewModel.updateAdress(it)},
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+    if(showCameraDialog.value){
+        CameraDialog(
+            onDismissRequest = {viewModel.setCameraDialogVisibility(false)}
         )
     }
 
-// a column with a box and the Controlbar
+Box() {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -214,6 +219,7 @@ fun DrawingScreen(
             )
         }
     }
+}
 
         if (showDialog) {
             canvasBitmap?.let { bitmap ->
@@ -228,14 +234,14 @@ fun DrawingScreen(
                         Spacer(Modifier.size(16.dp))
                         Image(
                             bitmap = bitmap,
-                            contentDescription = "Preview of ticket"
+                            contentDescription = "Vielen Dank für die Teilnahme!"
                         )
                         Spacer(Modifier.size(4.dp))
                         Button(onClick = {
                             showDialog = false
                             canvasBitmap = null
                         }) {
-                            Text("Close Preview")
+                            Text("Fertig")
                         }
                     }
                 }
@@ -245,51 +251,6 @@ fun DrawingScreen(
 
 
     }
-@Composable
-fun DialogWithTextField(
-    onDismissRequest: () -> Unit,
-    onConfirmation: (String) -> Unit
-) {
-    Dialog(onDismissRequest = { onDismissRequest()}) {
-        var text by remember { mutableStateOf("") }
-        var textEnabled by remember { mutableStateOf(true) }
-            Column(
-                modifier = Modifier
-                    .size(300.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(R.string.info_text),
-                    modifier = Modifier.padding(16.dp),
-                )
-
-                Row(modifier = Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.Center) {
-                    OutlinedTextField(
-                        value = text,
-                        onValueChange = { text = it },
-                        label = { Text("Filename") },
-                        enabled = textEnabled
-                    )
-                    TextButton(
-                        onClick = {
-                            if (text.isNotEmpty()) {
-                                onConfirmation(text)
-                                textEnabled = false
-                                onDismissRequest()
-                            }
-                        },
-                        modifier = Modifier.padding(8.dp),
-                    ) {
-                        Text("Confirm")
-                    }
-                }
-
-            }
-    }
-}
-
 
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -330,5 +291,6 @@ private fun saveFileMediaStore(context: Context, content: String, fileName: Stri
         Toast.makeText(context, "Failed to save", Toast.LENGTH_SHORT).show()
     }
 }
+
 
 
