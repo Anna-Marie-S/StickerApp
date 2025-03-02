@@ -2,6 +2,7 @@ package com.example.stickerapp
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -65,49 +67,52 @@ import androidx.compose.ui.window.Dialog
         var showStrokeWidthMenu by remember { mutableStateOf(false) }
         var showColorMenu by remember { mutableStateOf(false) }
         var lastColor by remember { mutableStateOf(Color.Black) }
+        var eraserMode by remember{ mutableStateOf(false) }
 
         Row(
             modifier = Modifier.padding(12.dp),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // Pen
             IconButton(
                 onClick = {
-                    properties.color = lastColor}
+                    properties.color = lastColor
+                properties.strokeWidth = 10f
+                eraserMode = false}
             ) {
                 Icon(
                     painterResource(R.drawable.stylus_note_24px),
                     contentDescription = "Pen",
-                    tint = lastColor
-                )
+                    tint = lastColor,
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .border(if(eraserMode)0.dp else 2.dp,Color.Black, shape = RoundedCornerShape(3.dp))
+                    )
             }
             // Eraser Button
             IconButton(
                 onClick = {
                     lastColor = if(properties.color != Color.White) properties.color else lastColor
-                    properties.color = Color.White}
+                    properties.color = Color.White
+                properties.strokeWidth = 50f
+                eraserMode = true}
             )  {
                 Icon(
                     painterResource(R.drawable.ink_eraser_24px),
                     contentDescription = "Eraser",
-                    tint = Color.Black
+                    tint = Color.Black,
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .border(if(eraserMode)2.dp else 0.dp,Color.Black, shape = RoundedCornerShape(3.dp))
                 )
             }
 
-            // Show StrokeWidthMenu
-            IconButton(
-                onClick = {showStrokeWidthMenu = true}
-            )  {
-                Icon(
-                    Icons.Default.MoreVert,
-                    contentDescription = "Set Stroke Width",
-                    tint = Color.Black
-                )
-            }// Show Color Menu
+           // Show Color Menu
             Button(
                 onClick = {showColorMenu = true},
                 colors = ButtonDefaults.buttonColors(lastColor),
-                modifier = Modifier.padding(3.dp).width(30.dp)
+                modifier = Modifier.padding(3.dp).width(30.dp).height(30.dp)
             ) { }
 
             // Undo Button
@@ -249,9 +254,8 @@ fun ColorSelectionMenu(
         ElevatedCard(
             elevation =  CardDefaults.cardElevation(defaultElevation = 6.dp),
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(24.dp)
         ) {
-            Column(modifier = Modifier.padding(8.dp)) {
                 Row(){
                     Button(
                         onClick = {onColorClick(Color.Black)},
@@ -275,58 +279,13 @@ fun ColorSelectionMenu(
                     ) { }
                     Button(
                         onClick = {onColorClick(Color.Yellow)},
-                        colors = ButtonDefaults.buttonColors(Color.Red),
+                        colors = ButtonDefaults.buttonColors(Color.Yellow),
                         modifier = Modifier.padding(3.dp).width(40.dp)
                     ) { }
                 }
-            }
         }
     }
 }
-@Composable
-fun EraserMenu(
-    drawController: DrawController
-){
-    var expanded by remember { mutableStateOf(false) }
-
-    Box{
-        TextButton(onClick = {expanded = !expanded
-        drawController.changeColor(Color.White)}) {
-            Row {
-                Icon(painterResource(R.drawable.ink_eraser_24px), tint = MaterialTheme.colorScheme.primary, contentDescription = "Eraser")
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Sticker menu")
-            }
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {expanded = false}
-        ) {
-            //Three Choices of Stroke Width
-            DropdownMenuItem(
-                text = { Text("Small")},
-                leadingIcon = { Icon(painterResource(R.drawable.eraser_size_2_24px), tint = Color.White, contentDescription = null) },
-                onClick = {
-                    drawController.changeStrokeWidth(10f)
-                expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Medium")},
-                leadingIcon = { Icon(painterResource(R.drawable.eraser_size_4_24px),tint = Color.White, contentDescription = null) },
-                onClick = {
-                    drawController.changeStrokeWidth(30f)
-                expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Large")},
-                leadingIcon = { Icon(painterResource(R.drawable.eraser_size_5_24px),tint = Color.White, contentDescription = null) },
-                onClick = {
-                    drawController.changeStrokeWidth(50f)
-                expanded = false}
-            )
-        }
-    }
-}
-
 
 @Composable
 fun StickerMenu(

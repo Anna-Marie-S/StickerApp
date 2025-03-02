@@ -148,6 +148,7 @@ fun DrawingScreen(
     var showDialog by remember { mutableStateOf(false) }
     val showCameraDialog = viewModel.cameraDialogVisible.collectAsState()
     val inputBoxVisible = viewModel.inputVisible.collectAsState()
+    val dragMode = viewModel.dragMode.collectAsState()
 
     val context = LocalContext.current
 
@@ -156,6 +157,10 @@ fun DrawingScreen(
         viewModel.resetCanvas()
         viewModel.changeRotation(0f)
         viewModel.changeOffset(Offset.Zero)
+    }
+
+    if(!dragMode.value){
+        viewModel.changeScale(1f)
     }
     fun downloadBitmap() {
         uiScope.launch {
