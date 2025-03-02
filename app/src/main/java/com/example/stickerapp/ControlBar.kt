@@ -350,14 +350,14 @@ fun StickerMenu(
                 text = { Text("House")},
                 leadingIcon = { Image(painterResource(R.drawable.icons8_castle_48), contentDescription = null) },
                 onClick = {
-                    viewModel.addSticker(R.drawable.icons8_castle_48)
+                    viewModel.addSticker("House", "Building", R.drawable.icons8_castle_48)
                 expanded = false}
             )
             DropdownMenuItem(
                 text = { Text("Ghost")},
                 leadingIcon = { Image(painterResource(R.drawable.icons8_ghost_64), contentDescription = null) },
                 onClick = {
-                    viewModel.addSticker(R.drawable.icons8_ghost_64)
+                    viewModel.addSticker("Ghost", "Nature", R.drawable.icons8_ghost_64)
                 expanded = false}
             )
             HorizontalDivider()
@@ -367,13 +367,8 @@ fun StickerMenu(
                 text = { Text("Taco")},
                 leadingIcon = { Image(painterResource(R.drawable.icons8_taco_64), contentDescription = null) },
                 onClick = {
-                    viewModel.addSticker(R.drawable.icons8_taco_64)
+                    viewModel.addSticker("Taco", "Nature", R.drawable.icons8_taco_64)
                 expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("House")},
-                leadingIcon = { Image(painterResource(R.drawable.drag_pan_24px), contentDescription = null) },
-                onClick = {}
             )
         }
     }

@@ -141,6 +141,8 @@ fun DrawingScreen(
     var canvasBitmap: ImageBitmap? by remember { mutableStateOf(null) }
 
     val fileName = viewModel.fileName.collectAsState()
+    val address = viewModel.adress.collectAsState()
+    val stickerList = viewModel.stickerList
 
 
     var showDialog by remember { mutableStateOf(false) }
@@ -252,13 +254,29 @@ Box() {
 
     }
 
+fun OutputStream.writeCsv(movies: List<Sticker>, time: String, address: String) {
+    val writer = bufferedWriter()
+    writer.write(""" "Time in ms:", ${time}""")
+    writer.newLine()
+    writer.write(""" "Adresse:", ${address}""")
+    writer.newLine()
+    writer.write("Used Stickers:")
+    writer.newLine()
+    writer.write(""""Name:", "Tag:""""")
+    writer.newLine()
+    movies.forEach {
+        writer.write("${it.name}, ${it.tag}")
+        writer.newLine()
+    }
+    writer.flush()
+}
 
 @RequiresApi(Build.VERSION_CODES.Q)
-private fun saveFileMediaStore(context: Context, content: String, fileName: String){
+private fun saveFileMediaStore(context: Context, content: List<Sticker>, time: String, address: String, fileName: String){
     try {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 put(MediaStore.MediaColumns.IS_PENDING, 1)
@@ -276,7 +294,8 @@ private fun saveFileMediaStore(context: Context, content: String, fileName: Stri
         fileMediaStoreUri?.let { myUri ->
             try{
                 resolver.openOutputStream(myUri)?.use { outputStream ->
-                    outputStream.write(content.toByteArray())
+//                    outputStream.write(content.toByteArray())
+                    outputStream.writeCsv(content, time, address)
                 }
 
                 contentValues.clear()
