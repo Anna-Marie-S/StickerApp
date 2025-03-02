@@ -87,9 +87,6 @@ fun DrawBox(
     // here the Canvas
     val dragMode by viewModel.dragMode.collectAsState()
     val list = viewModel.stickerList
-    val penColor = viewModel.penColor.collectAsState()
-
-    val density = LocalDensity.current
 
     val scaleVM = viewModel.canvasScale.collectAsState()
     val rotationVM = viewModel.canvasRotation.collectAsState()
