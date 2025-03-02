@@ -103,12 +103,13 @@ class MainViewModel : ViewModel() {
     val counter = mutableStateOf(0)
 
 
-    fun addSticker(resource: Int){
+    fun addSticker(name: String, tag: String, image:Int){
         counter.value++
         val item = Sticker(
             id = counter.value,
-            name = "House",
-            image = resource
+            name = name,
+            tag = tag,
+            image = image
         )
         _stickerList.add(item)
     }
