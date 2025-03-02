@@ -2,6 +2,7 @@ package com.example.stickerapp
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -59,7 +60,8 @@ import androidx.compose.ui.window.Dialog
     viewModel: MainViewModel,
     onUndoClick: () -> Unit,
     onRedoClick: () -> Unit,
-    onResetClick: () -> Unit
+    onResetClick: () -> Unit,
+    onStickerClick: () -> Unit
     ) {
 
         val mode = viewModel.dragMode.collectAsState()
@@ -70,7 +72,7 @@ import androidx.compose.ui.window.Dialog
         var eraserMode by remember{ mutableStateOf(false) }
 
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(12.dp).background(MaterialTheme.colorScheme.background),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -84,10 +86,9 @@ import androidx.compose.ui.window.Dialog
                 Icon(
                     painterResource(R.drawable.stylus_note_24px),
                     contentDescription = "Pen",
-                    tint = lastColor,
+                    tint = if(!eraserMode)lastColor else Color.LightGray,
                     modifier = Modifier
                         .padding(2.dp)
-                        .border(if(eraserMode)0.dp else 2.dp,Color.Black, shape = RoundedCornerShape(3.dp))
                     )
             }
             // Eraser Button
@@ -101,10 +102,10 @@ import androidx.compose.ui.window.Dialog
                 Icon(
                     painterResource(R.drawable.ink_eraser_24px),
                     contentDescription = "Eraser",
-                    tint = Color.Black,
+                    tint = if(eraserMode)Color.Black else Color.LightGray,
                     modifier = Modifier
                         .padding(2.dp)
-                        .border(if(eraserMode)2.dp else 0.dp,Color.Black, shape = RoundedCornerShape(3.dp))
+
                 )
             }
 
@@ -145,7 +146,11 @@ import androidx.compose.ui.window.Dialog
                     tint = Color.Black
                 )
             }
-
+            Button(
+                onClick = {onStickerClick()}
+            ){
+                Text("StickerMode")
+            }
             //Sticker DropDownMenu
             StickerMenu(viewModel)
 

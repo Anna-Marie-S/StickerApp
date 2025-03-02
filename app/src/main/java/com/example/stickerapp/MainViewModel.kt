@@ -100,6 +100,14 @@ class MainViewModel : ViewModel() {
     private val _stickerList = mutableStateListOf<Sticker>()
     val stickerList = _stickerList
 
+    private val _stickerPosition = mutableStateOf(Offset.Zero)
+    val stickerPosition = _stickerPosition
+
+    fun setStickerPosition(offset: Offset){
+        _stickerPosition.value = offset
+        println(stickerPosition.value.toString())
+    }
+
     val counter = mutableStateOf(0)
 
 

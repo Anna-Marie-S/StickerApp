@@ -243,7 +243,8 @@ Box() {
             DrawBox(
                 drawController = drawController,
                 viewModel = viewModel,
-                captureController = captureController
+                captureController = captureController,
+                modifier = Modifier
             )
         }
     }

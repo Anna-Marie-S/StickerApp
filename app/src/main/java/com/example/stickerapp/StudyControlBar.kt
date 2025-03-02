@@ -73,19 +73,19 @@ fun StudyControlBar(
                     Icon(
                         Icons.Default.PlayArrow,
                         contentDescription = "Start",
-                        tint = Color.Black
+                        tint = Color.Green
                     )
                 }
                 StudyStates.STARTED -> {
                     Icon(
-                        Icons.Default.Done,
+                        painterResource(R.drawable.stop_24px),
                         contentDescription = "Stop",
-                        tint = Color.Black
+                        tint = Color.Red
                     )
                 }
                 StudyStates.DONE -> {
                     Icon(
-                        painterResource(R.drawable.download_24px),
+                        painterResource(R.drawable.photo_camera_24px),
                         contentDescription = "Download",
                         tint = Color.Black
                     )
@@ -124,7 +124,7 @@ fun DialogWithTextField(
         ElevatedCard(
             elevation =  CardDefaults.cardElevation(defaultElevation = 6.dp),
             modifier = Modifier
-                .size(width = 700.dp, height = 400.dp)
+                .fillMaxSize()
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
         ) {Row(
@@ -137,7 +137,7 @@ fun DialogWithTextField(
                     .size(300.dp)
                     .background(Color.White)
                     .weight(1f)
-                    .padding(4.dp)
+                    .padding(24.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
@@ -147,7 +147,7 @@ fun DialogWithTextField(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(4.dp),
+                    .padding(24.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -192,7 +192,7 @@ fun CameraDialog(
         ElevatedCard(
             elevation =  CardDefaults.cardElevation(defaultElevation = 6.dp),
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(24.dp)
         ) {
             Text(
                 "Bitte zoome so aus deiner Zeichnung heraus, dass sie komplett zu sehen ist und klicke dann auf den Kamera Button."

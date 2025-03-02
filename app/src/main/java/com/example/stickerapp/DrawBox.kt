@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.TransformableState
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
@@ -31,6 +33,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import dev.shreyaspatil.capturable.capturable
@@ -71,7 +78,7 @@ fun DrawBox(
      * Previous motion event before next touch is saved into this current position.
      */
     var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
-    var stickerPosition by remember { mutableStateOf(Offset(500f, 500f)) }
+
     /**
      * Draw mode, erase mode or touch mode to
      */
@@ -92,11 +99,14 @@ fun DrawBox(
     val rotationVM = viewModel.canvasRotation.collectAsState()
     val offsetVM = viewModel.canvasOffset.collectAsState()
 
+    var stickerPosition by remember { mutableStateOf(Offset.Zero) }
+
+    var stickerMode by remember { mutableStateOf(false) }
+
     val state = rememberTransformableState { zoomChange, offsetChange, _ ->
         viewModel.changeScale(scaleVM.value * zoomChange)
         viewModel.changeOffset(offsetVM.value + offsetChange)
     }
-
     fun unDo() {
         if (paths.isNotEmpty()) {
             val lastItem = paths.last()
@@ -137,12 +147,14 @@ fun DrawBox(
             viewModel = viewModel,
             onUndoClick = {unDo()},
             onRedoClick = {reDo()},
-            onResetClick = {clearCanvas()}
+            onResetClick = {clearCanvas()},
+            onStickerClick = {stickerMode = !stickerMode}
 
         )
 
         Box(
             Modifier.clipToBounds()
+
         ) {
             Box(
                 modifier = Modifier
@@ -155,6 +167,9 @@ fun DrawBox(
                         translationX = offsetVM.value.x,
                         translationY = offsetVM.value.y
                     )
+                    .onPlaced { coordinates ->
+                        stickerPosition = coordinates.positionInWindow()
+                    }
             ) {
                 Canvas(
                     modifier = modifier
@@ -162,10 +177,20 @@ fun DrawBox(
                         .requiredSize(10000.dp)
                         .background(Color.White)
                         .clipToBounds()
+                        .pointerInput(Unit){
+                            if(stickerMode){
+                                detectTapGestures(
+                                    onTap = {
+                                        viewModel.setStickerPosition(it)
+                                    }
+                                )
+                            }
+                        }
                         .dragMotionEvent(
                             onDragStart = { pointerInputChange ->
                                 motionEvent = MotionEvent.Down
                                 currentPosition = pointerInputChange.position
+                                viewModel.setStickerPosition(pointerInputChange.position)
                                 pointerInputChange.consume()
 
                             },
@@ -187,7 +212,7 @@ fun DrawBox(
                             },
                             onDragEnd = { pointerInputChange ->
                                 motionEvent = MotionEvent.Up
-                                stickerPosition = pointerInputChange.position
+                                viewModel.setStickerPosition(pointerInputChange.position)
                                 pointerInputChange.consume()
                             }
                         )
@@ -336,7 +361,9 @@ fun DrawBox(
                     ) {
                         DragRotateBox(
                             resource = sticker,
-                            onDelete = viewModel::deleteSticker
+                            onDelete = viewModel::deleteSticker,
+                            viewModel,
+                            stickerPos = stickerPosition
                         )
                     }
                 }
