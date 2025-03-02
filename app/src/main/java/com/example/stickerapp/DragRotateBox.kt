@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +32,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -44,8 +46,10 @@ other boxes as handlers
 @Composable
 fun DragRotateBox(
         resource: Sticker,
-        onDelete: (Sticker) -> Unit
-    ) {
+        onDelete: (Sticker) -> Unit,
+        viewModel: MainViewModel,
+        stickerPos:Offset
+) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -56,8 +60,10 @@ fun DragRotateBox(
         var centroid by remember { mutableStateOf(Offset.Zero) }
         val boxSizePx = with(LocalDensity.current) { boxSize.toPx() }
         val center = Offset(boxSizePx, boxSizePx)
+        val startPos = viewModel.stickerPosition.value
 
-        var position by remember { mutableStateOf(Offset(500f, 500f)) }
+
+        var position by remember { mutableStateOf(stickerPos) }
 
         var selected by remember { mutableStateOf(false) }
 
