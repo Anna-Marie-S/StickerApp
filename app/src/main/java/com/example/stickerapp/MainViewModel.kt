@@ -31,6 +31,20 @@ class MainViewModel : ViewModel() {
         _cameraDialogVisible.update { boolean }
     }
 
+    private var _infoBoxVisible = MutableStateFlow(false)
+    var infoBoxVisible = _infoBoxVisible.asStateFlow()
+
+    fun setInfoBoxVisible(boolean: Boolean){
+        _infoBoxVisible.update { boolean }
+    }
+
+    private var _studyState = MutableStateFlow(StudyStates.ON_BACKGROUND)
+    var studyState = _studyState.asStateFlow()
+
+    fun setStudyState(state: StudyStates){
+        _studyState.update { state }
+    }
+
     /*
     Canvas Things
      */
