@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -148,6 +149,7 @@ fun DrawingScreen(
     var showDialog by remember { mutableStateOf(false) }
     val showCameraDialog = viewModel.cameraDialogVisible.collectAsState()
     val inputBoxVisible = viewModel.inputVisible.collectAsState()
+    val infoBoxVisible = viewModel.infoBoxVisible.collectAsState()
     val dragMode = viewModel.dragMode.collectAsState()
 
     val context = LocalContext.current
@@ -181,7 +183,14 @@ fun DrawingScreen(
             viewModel.setInputVisibility(true)
         }
     }
-    fun showInfoBox(){}
+    fun showInfoBox(){
+        if(infoBoxVisible.value)
+        {
+            viewModel.setInfoBoxVisible(false)
+        } else {
+            viewModel.setInfoBoxVisible(true)
+        }
+    }
 
     if(inputBoxVisible.value) {
         DialogWithTextField(
@@ -190,12 +199,19 @@ fun DrawingScreen(
                 viewModel.updateFileName(it)
             onStartClick()},
             onAdressConfirmation = {viewModel.updateAdress(it)},
-            modifier = Modifier.fillMaxSize()
+            onStudyStartClick = {viewModel.setStudyState(StudyStates.STARTED)},
+            modifier = Modifier.background(MaterialTheme.colorScheme.background)
         )
     }
     if(showCameraDialog.value){
         CameraDialog(
             onDismissRequest = {viewModel.setCameraDialogVisibility(false)}
+        )
+    }
+
+    if(infoBoxVisible.value){
+        InfoTextBox(
+            onDismissRequest = {viewModel.setInfoBoxVisible(false)}
         )
     }
 

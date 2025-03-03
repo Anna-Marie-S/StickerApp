@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -134,9 +135,8 @@ fun DrawBox(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ControlBar(
-            modifier = Modifier.background(Color.White),
+            modifier = Modifier,
             pathProperties = currentPathProperty,
-            drawMode = drawMode,
             viewModel = viewModel,
             onUndoClick = {unDo()},
             onRedoClick = {reDo()},
@@ -177,16 +177,6 @@ fun DrawBox(
                             onDrag = { pointerInputChange ->
                                 motionEvent = MotionEvent.Move
                                 currentPosition = pointerInputChange.position
-
-//                                if (drawMode == DrawMode.Touch) {
-//                                    val change = pointerInputChange.positionChange()
-//                                    println("DRAG: $change")
-//                                    paths.forEach { entry ->
-//                                        val path: Path = entry.first
-//                                        path.translate(change)
-//                                    }
-//                                    currentPath.translate(change)
-//                                }
                                 pointerInputChange.consume()
 
                             },
@@ -196,31 +186,17 @@ fun DrawBox(
                                 pointerInputChange.consume()
                             }
                         )
-//                    .pointerInput(Unit) {
-//                        detectDragGestures(
-//                            onDragStart = { offset ->
-//                                drawController.insertNewPath(offset)
-//                            }
-//                        ) { change, _ ->
-//                            val newPoint = change.position
-//                            drawController.updateLatestPath(newPoint)
-//                        }
-//                    }
                 ) {
                     when (motionEvent) {
 
                         MotionEvent.Down -> {
-                            if (drawMode != DrawMode.Touch) {
                                 currentPath.moveTo(currentPosition.x, currentPosition.y)
-                            }
-
                             previousPosition = currentPosition
 
                         }
 
                         MotionEvent.Move -> {
 
-                           // if (drawMode != DrawMode.Touch)
                                 currentPath.quadraticTo(
                                     previousPosition.x,
                                     previousPosition.y,
@@ -233,7 +209,6 @@ fun DrawBox(
                         }
 
                         MotionEvent.Up -> {
-//                            if (drawMode != DrawMode.Touch) {
                                 currentPath.lineTo(currentPosition.x, currentPosition.y)
                                 paths.add(Pair(currentPath, currentPathProperty))
                                 currentPath = Path()
@@ -320,20 +295,6 @@ fun DrawBox(
                         }
                     }
                 }
-
-//                    drawController.pathList.forEach { pw ->
-//                        drawPath(
-//                            createPath(pw.points),
-//                            color = pw.strokeColor,
-//                            alpha = 1f,
-//                            style = Stroke(
-//                                width = pw.strokeWidth,
-//                                cap = StrokeCap.Round,
-//                                join = StrokeJoin.Round
-//                            )
-//                        )
-//                    }
-
 
                 list.forEach { sticker ->
                     key(

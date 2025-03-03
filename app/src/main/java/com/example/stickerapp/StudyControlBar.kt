@@ -8,11 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
@@ -24,6 +25,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
@@ -42,12 +43,13 @@ enum class StudyStates {
 }
 @Composable
 fun StudyControlBar(
+    viewModel: MainViewModel,
     onStartClick: () -> Unit,
     onStopClick: () -> Unit,
     onInfoClick: () -> Unit,
     onDownloadClick: () -> Unit
 ){
-    var studyState by remember { mutableStateOf(StudyStates.ON_BACKGROUND) }
+    val studyState = viewModel.studyState.collectAsState()
     Row(
         modifier = Modifier.padding(12.dp),
         horizontalArrangement = Arrangement.Center
@@ -55,20 +57,17 @@ fun StudyControlBar(
         // Start Study: Clear Canvas, Start Stopwatch, Save Filename
         IconButton(
             onClick = {
-                when(studyState){
+                when(studyState.value){
                     StudyStates.ON_BACKGROUND ->{
-                        onStartClick()
-                    studyState = StudyStates.STARTED}
+                        onStartClick() }
                     StudyStates.STARTED -> {
-                        onStopClick()
-                    studyState = StudyStates.DONE}
+                        onStopClick() }
                     StudyStates.DONE -> {
-                        onDownloadClick()
-                    studyState = StudyStates.ON_BACKGROUND}
+                        onDownloadClick() }
                 }
                 }
         ){
-            when(studyState){
+            when(studyState.value){
                 StudyStates.ON_BACKGROUND ->{
                     Icon(
                         Icons.Default.PlayArrow,
@@ -113,7 +112,8 @@ fun DialogWithTextField(
     onDismissRequest: () -> Unit,
     onIDConfirmation: (String) -> Unit,
     onAdressConfirmation: (String) -> Unit,
-    modifier: Modifier = Modifier
+    onStudyStartClick:() -> Unit,
+    modifier: Modifier
 ) {
 
         var textID by remember { mutableStateOf("") }
@@ -124,26 +124,26 @@ fun DialogWithTextField(
         ElevatedCard(
             elevation =  CardDefaults.cardElevation(defaultElevation = 6.dp),
             modifier = Modifier
-                .fillMaxSize()
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
         ) {Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
             Column(
                 modifier = Modifier
-                    .size(300.dp)
+                   .width(700.dp)
                     .background(Color.White)
                     .weight(1f)
                     .padding(24.dp)
                     .verticalScroll(rememberScrollState())
-            ) {
-                Text(
-                    text = stringResource(R.string.info_text)
-                )
-            }
+            ){
+            Text(
+                text = stringResource(R.string.info_text)
+            )
+        }
+
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -169,6 +169,7 @@ fun DialogWithTextField(
                             onIDConfirmation(textID)
                             onAdressConfirmation(textAdresse)
                             textEnabled = false
+                            onStudyStartClick()
                             onDismissRequest()
                         }
                     }
@@ -195,7 +196,8 @@ fun CameraDialog(
             modifier = Modifier.fillMaxWidth().padding(24.dp)
         ) {
             Text(
-                "Bitte zoome so aus deiner Zeichnung heraus, dass sie komplett zu sehen ist und klicke dann auf den Kamera Button."
+                text = stringResource(R.string.camer_text),
+                modifier = Modifier.padding(12.dp)
             )
                 TextButton(
                     {onDismissRequest()}
@@ -207,12 +209,28 @@ fun CameraDialog(
     }
 }
 
-@Preview
 @Composable
-fun InputBoxPreview(){
-    DialogWithTextField(
-        onDismissRequest = {},
-        onIDConfirmation = {},
-        onAdressConfirmation = {}
-    )
+fun InfoTextBox(
+    onDismissRequest: () -> Unit
+){
+    Dialog(onDismissRequest = {}) {
+    ElevatedCard(
+        elevation =  CardDefaults.cardElevation(defaultElevation = 6.dp),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(24.dp)
+    ) {
+        Column {
+            IconButton(
+                onClick = {onDismissRequest()}
+            ) {
+                Icon(Icons.Default.Close, contentDescription = "Close")
+            }
+            Text(
+                text = stringResource(R.string.info_text),
+                modifier = Modifier.padding(12.dp)
+            )
+        }
+
+    }
+}
 }

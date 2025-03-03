@@ -56,12 +56,11 @@ import androidx.compose.ui.window.Dialog
     fun ControlBar(
     modifier: Modifier,
     pathProperties: PathProperties,
-    drawMode: DrawMode,
     viewModel: MainViewModel,
     onUndoClick: () -> Unit,
     onRedoClick: () -> Unit,
     onResetClick: () -> Unit,
-    onStickerClick: () -> Unit
+
     ) {
 
         val mode = viewModel.dragMode.collectAsState()
@@ -146,11 +145,6 @@ import androidx.compose.ui.window.Dialog
                     tint = Color.Black
                 )
             }
-            Button(
-                onClick = {onStickerClick()}
-            ){
-                Text("StickerMode")
-            }
             //Sticker DropDownMenu
             StickerMenu(viewModel)
 
@@ -189,10 +183,13 @@ import androidx.compose.ui.window.Dialog
             }
             if(showColorMenu){
                 ColorSelectionMenu(
+                    modifier = Modifier.background(MaterialTheme.colorScheme.background),
                     onDismiss = {showColorMenu = !showColorMenu},
                     onColorClick = {color: Color ->
                         showColorMenu = !showColorMenu
+                        eraserMode = false
                         properties.color = color
+                        properties.strokeWidth = 10f
                         lastColor = color
                     }
                 )
@@ -208,7 +205,7 @@ fun StrokeWidthMenu(pathOption: PathProperties, onDismiss: () -> Unit){
         ElevatedCard(
             elevation =  CardDefaults.cardElevation(defaultElevation = 6.dp),
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(8.dp).background(MaterialTheme.colorScheme.background)
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
                 Canvas(
@@ -252,6 +249,7 @@ fun StrokeWidthMenu(pathOption: PathProperties, onDismiss: () -> Unit){
 }
 @Composable
 fun ColorSelectionMenu(
+    modifier: Modifier,
     onDismiss: () -> Unit,
     onColorClick: (Color) -> Unit
 ){
@@ -261,7 +259,8 @@ fun ColorSelectionMenu(
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.padding(24.dp)
         ) {
-                Row(){
+                Row(modifier = Modifier.padding(12.dp))
+                {
                     Button(
                         onClick = {onColorClick(Color.Black)},
                         colors = ButtonDefaults.buttonColors(Color.Black),
