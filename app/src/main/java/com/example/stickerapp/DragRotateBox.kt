@@ -52,7 +52,8 @@ fun DragRotateBox(
         resource: Sticker,
         onDelete: (Sticker) -> Unit,
         viewModel: MainViewModel,
-        stickerPos:Offset
+        stickerPos: Offset,
+        modifier: Modifier
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
