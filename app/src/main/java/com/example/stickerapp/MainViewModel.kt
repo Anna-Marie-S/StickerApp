@@ -1,7 +1,5 @@
 package com.example.stickerapp
 
-import android.os.Build
-import android.view.MotionEvent
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
@@ -10,7 +8,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.math.pow
@@ -157,12 +154,12 @@ class MainViewModel : ViewModel() {
         _fileName.update { input }
     }
 
-    private var _adress = MutableStateFlow("")
-    var adress = _adress.asStateFlow()
+    private var _address = MutableStateFlow(arrayOf("", "", "", ""))
+    var address = _address.asStateFlow()
         private set
 
-    fun updateAdress(input: String){
-        _adress.update { input }
+    fun updateAddress(input: Array<String>){
+        _address.update { input }
     }
 
     /*

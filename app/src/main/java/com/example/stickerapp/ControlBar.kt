@@ -327,10 +327,10 @@ fun StickerMenu(
 
             //Second Section
             DropdownMenuItem(
-                text = { Text("Taco")},
-                leadingIcon = { Image(painterResource(R.drawable.icons8_taco_64), contentDescription = null) },
+                text = { Text("Park")},
+                leadingIcon = { Image(painterResource(R.drawable.park), contentDescription = "Park") },
                 onClick = {
-                    viewModel.addSticker("Taco", "Nature", R.drawable.icons8_taco_64)
+                    viewModel.addSticker("Park", "Nature", R.drawable.park)
                 expanded = false}
             )
         }

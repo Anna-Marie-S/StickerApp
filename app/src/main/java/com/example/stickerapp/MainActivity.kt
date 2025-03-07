@@ -142,7 +142,7 @@ fun DrawingScreen(
     var canvasBitmap: ImageBitmap? by remember { mutableStateOf(null) }
 
     val fileName = viewModel.fileName.collectAsState()
-    val address = viewModel.adress.collectAsState()
+    val address = viewModel.address.collectAsState()
     val stickerList = viewModel.stickerList
 
 
@@ -198,14 +198,15 @@ fun DrawingScreen(
             onIDConfirmation = {
                 viewModel.updateFileName(it)
             onStartClick()},
-            onAdressConfirmation = {viewModel.updateAdress(it)},
+            onAddressConfirmation = {viewModel.updateAddress(it)},
             onStudyStartClick = {viewModel.setStudyState(StudyStates.STARTED)},
             modifier = Modifier.background(MaterialTheme.colorScheme.background)
         )
     }
     if(showCameraDialog.value){
         CameraDialog(
-            onDismissRequest = {viewModel.setCameraDialogVisibility(false)}
+            onDismissRequest = {viewModel.setCameraDialogVisibility(false)},
+            onOkayClick = {viewModel.setStudyState(StudyStates.DONE)}
         )
     }
 
@@ -276,25 +277,25 @@ Box() {
 
     }
 
-fun OutputStream.writeCsv(movies: List<Sticker>, time: String, address: String) {
+fun OutputStream.writeCsv(stickers: List<Sticker>, time: String, address: Array<String>) {
     val writer = bufferedWriter()
     writer.write(""" "Time in ms:", ${time}""")
     writer.newLine()
-    writer.write(""" "Adresse:", ${address}""")
+    writer.write(""" "Adresse:", ${address[0]}, ${address[1]}, ${address[2]}, ${address[3]} """)
     writer.newLine()
     writer.write("Used Stickers:")
     writer.newLine()
-    writer.write(""""Name:", "Tag:""""")
+    writer.write(""""Name:", "Tag:"""")
     writer.newLine()
-    movies.forEach {
-        writer.write("${it.name}, ${it.tag}")
+    stickers.forEach {
+        writer.write(""""${it.name}", "${it.tag}"""")
         writer.newLine()
     }
     writer.flush()
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-private fun saveFileMediaStore(context: Context, content: List<Sticker>, time: String, address: String, fileName: String){
+private fun saveFileMediaStore(context: Context, content: List<Sticker>, time: String, address: Array<String>, fileName: String){
     try {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)

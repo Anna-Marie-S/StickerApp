@@ -40,9 +40,9 @@ internal fun activityChooser(uri: Uri?) = Intent.createChooser(Intent().apply {
 //writing files to storage via scope and normal manner acc. to Api level
 //this is from askshay
 
-internal fun Context.saveImage(bitmap: Bitmap): Uri? {
+internal fun Context.saveImage(bitmap: Bitmap ): Uri? {
     val uri: Uri? = null
-    val fileName = System.nanoTime().toString() + ".png"
+    val fileName = System.currentTimeMillis().toString() + ".png"
     val values = ContentValues().apply {
         put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
         put(MediaStore.Images.Media.MIME_TYPE, "image/png")

@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import java.util.Arrays
 
 enum class StudyStates {
     STARTED, DONE, ON_BACKGROUND
@@ -111,14 +112,18 @@ fun StudyControlBar(
 fun DialogWithTextField(
     onDismissRequest: () -> Unit,
     onIDConfirmation: (String) -> Unit,
-    onAdressConfirmation: (String) -> Unit,
+    onAddressConfirmation: (Array<String>) -> Unit,
     onStudyStartClick:() -> Unit,
     modifier: Modifier
 ) {
 
         var textID by remember { mutableStateOf("") }
-        var textAdresse by remember { mutableStateOf("") }
+        var textStreet by remember { mutableStateOf("") }
+        var textHouseNumber by remember { mutableStateOf("") }
+        var textZipCode by remember { mutableStateOf("") }
+        var textCity by remember { mutableStateOf("") }
         var textEnabled by remember { mutableStateOf(true) }
+    var adress = arrayOf(textStreet, textHouseNumber, textZipCode, textCity)
     Dialog(onDismissRequest = { onDismissRequest() }) {
         // Draw a rectangle shape with rounded corners inside the dialog
         ElevatedCard(
@@ -135,7 +140,7 @@ fun DialogWithTextField(
                 modifier = Modifier
                    .width(700.dp)
                     .background(Color.White)
-                    .weight(1f)
+                    .weight(2f)
                     .padding(24.dp)
                     .verticalScroll(rememberScrollState())
             ){
@@ -158,16 +163,39 @@ fun DialogWithTextField(
                     enabled = textEnabled
                 )
                 OutlinedTextField(
-                    value = textAdresse,
-                    onValueChange = { textAdresse = it },
-                    label = { Text("Adresse") },
+                    value = textStreet,
+                    onValueChange = { textStreet = it },
+                    label = { Text("Straße") },
                     enabled = textEnabled
                 )
+                    OutlinedTextField(
+                        value = textHouseNumber,
+                        onValueChange = { textHouseNumber = it },
+                        label = { Text("Hausnummer") },
+                        enabled = textEnabled
+                    )
+
+                    OutlinedTextField(
+                        value = textZipCode,
+                        onValueChange = { textZipCode = it },
+                        label = { Text("PLZ") },
+                        enabled = textEnabled
+                    )
+                    OutlinedTextField(
+                        value = textCity,
+                        onValueChange = { textCity = it },
+                        label = { Text("Stadt") },
+                        enabled = textEnabled
+                    )
                 Button(
                     onClick = {
-                        if (textID.isNotEmpty() && textAdresse.isNotEmpty()) {
+                        if (textID.isNotEmpty() &&
+                            textStreet.isNotEmpty() &&
+                            textHouseNumber.isNotEmpty() &&
+                            textZipCode.isNotEmpty() &&
+                            textCity.isNotEmpty()) {
                             onIDConfirmation(textID)
-                            onAdressConfirmation(textAdresse)
+                            onAddressConfirmation(adress)
                             textEnabled = false
                             onStudyStartClick()
                             onDismissRequest()
@@ -187,7 +215,8 @@ fun DialogWithTextField(
 
 @Composable
 fun CameraDialog(
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onOkayClick: () -> Unit
 ){
     Dialog(onDismissRequest = {}) {
         ElevatedCard(
@@ -196,11 +225,12 @@ fun CameraDialog(
             modifier = Modifier.fillMaxWidth().padding(24.dp)
         ) {
             Text(
-                text = stringResource(R.string.camer_text),
+                text = stringResource(R.string.camera_text),
                 modifier = Modifier.padding(12.dp)
             )
                 TextButton(
-                    {onDismissRequest()}
+                    {onOkayClick()
+                        onDismissRequest()}
                 ) {
                     Text("Okay")
                 }
