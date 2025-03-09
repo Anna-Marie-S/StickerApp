@@ -123,90 +123,100 @@ fun DialogWithTextField(
         var textZipCode by remember { mutableStateOf("") }
         var textCity by remember { mutableStateOf("") }
         var textEnabled by remember { mutableStateOf(true) }
-    var adress = arrayOf(textStreet, textHouseNumber, textZipCode, textCity)
-    Dialog(onDismissRequest = { onDismissRequest() }) {
+    val adress = arrayOf(textStreet, textHouseNumber, textZipCode, textCity)
+    Dialog(onDismissRequest = { }) {
         // Draw a rectangle shape with rounded corners inside the dialog
         ElevatedCard(
             elevation =  CardDefaults.cardElevation(defaultElevation = 6.dp),
             modifier = Modifier
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
-        ) {Row(
-            modifier = Modifier.padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
         ) {
-            Column(
-                modifier = Modifier
-                   .width(700.dp)
-                    .background(Color.White)
-                    .weight(2f)
-                    .padding(24.dp)
-                    .verticalScroll(rememberScrollState())
-            ){
-            Text(
-                text = stringResource(R.string.info_text)
-            )
-        }
+            Column() {
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                OutlinedTextField(
-                    value = textID,
-                    onValueChange = { textID = it },
-                    label = { Text("Id") },
-                    enabled = textEnabled
-                )
-                OutlinedTextField(
-                    value = textStreet,
-                    onValueChange = { textStreet = it },
-                    label = { Text("Straße") },
-                    enabled = textEnabled
-                )
-                    OutlinedTextField(
-                        value = textHouseNumber,
-                        onValueChange = { textHouseNumber = it },
-                        label = { Text("Hausnummer") },
-                        enabled = textEnabled
-                    )
-
-                    OutlinedTextField(
-                        value = textZipCode,
-                        onValueChange = { textZipCode = it },
-                        label = { Text("PLZ") },
-                        enabled = textEnabled
-                    )
-                    OutlinedTextField(
-                        value = textCity,
-                        onValueChange = { textCity = it },
-                        label = { Text("Stadt") },
-                        enabled = textEnabled
-                    )
-                Button(
-                    onClick = {
-                        if (textID.isNotEmpty() &&
-                            textStreet.isNotEmpty() &&
-                            textHouseNumber.isNotEmpty() &&
-                            textZipCode.isNotEmpty() &&
-                            textCity.isNotEmpty()) {
-                            onIDConfirmation(textID)
-                            onAddressConfirmation(adress)
-                            textEnabled = false
-                            onStudyStartClick()
-                            onDismissRequest()
-                        }
-                    }
+                IconButton(
+                    onClick = {onDismissRequest()}
                 ) {
-                    Text("Start")
+                    Icon(Icons.Default.Close, contentDescription = "Close")
                 }
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .width(700.dp)
+                            .background(Color.White)
+                            .weight(2f)
+                            .padding(24.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(
+                            text = stringResource(R.string.info_text)
+                        )
+                    }
 
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(24.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        OutlinedTextField(
+                            value = textID,
+                            onValueChange = { textID = it },
+                            label = { Text("Id") },
+                            enabled = textEnabled
+                        )
+                        OutlinedTextField(
+                            value = textStreet,
+                            onValueChange = { textStreet = it },
+                            label = { Text("Straße") },
+                            enabled = textEnabled
+                        )
+                        OutlinedTextField(
+                            value = textHouseNumber,
+                            onValueChange = { textHouseNumber = it },
+                            label = { Text("Hausnummer") },
+                            enabled = textEnabled
+                        )
+
+                        OutlinedTextField(
+                            value = textZipCode,
+                            onValueChange = { textZipCode = it },
+                            label = { Text("PLZ") },
+                            enabled = textEnabled
+                        )
+                        OutlinedTextField(
+                            value = textCity,
+                            onValueChange = { textCity = it },
+                            label = { Text("Stadt") },
+                            enabled = textEnabled
+                        )
+                        Button(
+                            onClick = {
+                                if (textID.isNotEmpty() &&
+                                    textStreet.isNotEmpty() &&
+                                    textHouseNumber.isNotEmpty() &&
+                                    textZipCode.isNotEmpty() &&
+                                    textCity.isNotEmpty()
+                                ) {
+                                    onIDConfirmation(textID)
+                                    onAddressConfirmation(adress)
+                                    textEnabled = false
+                                    onStudyStartClick()
+                                    onDismissRequest()
+                                }
+                            }
+                        ) {
+                            Text("Start")
+                        }
+
+                    }
+                }
             }
-        }
         }
     }
 
