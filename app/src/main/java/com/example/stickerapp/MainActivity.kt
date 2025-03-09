@@ -182,7 +182,7 @@ fun DrawingScreen(
     fun downloadBitmap() {
         uiScope.launch {
             canvasBitmap = captureController.captureAsync().await()
-            canvasBitmap?.asAndroidBitmap()?.let { save(it) }
+            canvasBitmap?.asAndroidBitmap()?.let { saveBitmapMediaStore(context,it, fileName.value) }
         }
 
     }
@@ -354,9 +354,51 @@ private fun saveFileMediaStore(context: Context, content: List<Sticker>, time: S
             }
         }
     }catch (e: IOException){
-        Toast.makeText(context, "Failed to save", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Failed to save csv File", Toast.LENGTH_SHORT).show()
     }
 }
 
+@SuppressLint("InlinedApi")
+private fun saveBitmapMediaStore(context: Context, bitmap: Bitmap, fileName: String){
+    val resolver = context.contentResolver
+    val imageCollection = MediaStore.Images.Media.getContentUri(
+        MediaStore.VOLUME_EXTERNAL_PRIMARY
+    )
+    val timeInMillis = System.currentTimeMillis()
+    try {
+        val imageContentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "${fileName}.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpg")
+            put(MediaStore.Images.Media.DATE_ADDED, timeInMillis)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }else {
+                val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                val file = File(directory, fileName)
+                put(MediaStore.MediaColumns.DATA, file.absolutePath)
+            }
+        }
+        val imageMediaStoreUri = resolver.insert(imageCollection, imageContentValues)
+        imageMediaStoreUri?.let { myUri ->
+            try{
+                resolver.openOutputStream(myUri)?.use { outputStream ->
+                    bitmap.compress(
+                        Bitmap.CompressFormat.JPEG, 100, outputStream
+                    )
+                }
+
+                imageContentValues.clear()
+                imageContentValues.put(MediaStore.MediaColumns.IS_PENDING,0)
+                resolver.update(myUri, imageContentValues, null, null)
+            } catch (e: Exception){
+                e.printStackTrace()
+                resolver.delete(myUri, null, null)
+            }
+        }
+    }catch (e: IOException){
+        Toast.makeText(context, "Failed to save bitmap", Toast.LENGTH_SHORT).show()
+    }
+}
 
 
