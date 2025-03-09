@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -32,9 +34,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import java.util.Arrays
@@ -124,6 +131,8 @@ fun DialogWithTextField(
         var textCity by remember { mutableStateOf("") }
         var textEnabled by remember { mutableStateOf(true) }
     val adress = arrayOf(textStreet, textHouseNumber, textZipCode, textCity)
+
+    val (first, second, third, fourth, fifth, sixth) = remember { FocusRequester.createRefs()}
     Dialog(onDismissRequest = { }) {
         // Draw a rectangle shape with rounded corners inside the dialog
         ElevatedCard(
@@ -166,34 +175,48 @@ fun DialogWithTextField(
                     ) {
                         OutlinedTextField(
                             value = textID,
-                            onValueChange = { textID = it },
+                            onValueChange = {
+                                textID = it
+                            },
                             label = { Text("Id") },
-                            enabled = textEnabled
+                            keyboardActions = KeyboardActions(onDone = {}),
+                            enabled = textEnabled,
+                            modifier = Modifier.focusRequester(first).focusProperties { next = second }
                         )
                         OutlinedTextField(
                             value = textStreet,
                             onValueChange = { textStreet = it },
                             label = { Text("Straße") },
-                            enabled = textEnabled
+                            enabled = textEnabled,
+                            modifier = Modifier.focusRequester(second).focusProperties { next = third },
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
                         )
                         OutlinedTextField(
                             value = textHouseNumber,
                             onValueChange = { textHouseNumber = it },
                             label = { Text("Hausnummer") },
-                            enabled = textEnabled
+                            enabled = textEnabled,
+                            modifier = Modifier.focusRequester(third).focusProperties { next = fourth },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+
                         )
 
                         OutlinedTextField(
                             value = textZipCode,
                             onValueChange = { textZipCode = it },
                             label = { Text("PLZ") },
-                            enabled = textEnabled
+                            enabled = textEnabled,
+                            modifier = Modifier.focusRequester(fourth).focusProperties { next = fifth },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
                         OutlinedTextField(
                             value = textCity,
                             onValueChange = { textCity = it },
                             label = { Text("Stadt") },
-                            enabled = textEnabled
+                            enabled = textEnabled,
+                            modifier = Modifier.focusRequester(fifth).focusProperties { next = sixth },
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
+
                         )
                         Button(
                             onClick = {
@@ -209,7 +232,8 @@ fun DialogWithTextField(
                                     onStudyStartClick()
                                     onDismissRequest()
                                 }
-                            }
+                            },
+                            modifier = Modifier.focusRequester(sixth).focusProperties { next = second }
                         ) {
                             Text("Start")
                         }
