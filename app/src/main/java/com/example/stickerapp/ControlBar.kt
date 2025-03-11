@@ -69,6 +69,7 @@ import androidx.compose.ui.window.Dialog
         var showColorMenu by remember { mutableStateOf(false) }
         var lastColor by remember { mutableStateOf(Color.Black) }
         var eraserMode by remember{ mutableStateOf(false) }
+    val default_stroke_width = 7f
 
         Row(
             modifier = Modifier.padding(12.dp).background(MaterialTheme.colorScheme.background),
@@ -79,7 +80,7 @@ import androidx.compose.ui.window.Dialog
             IconButton(
                 onClick = {
                     properties.color = lastColor
-                properties.strokeWidth = 10f
+                properties.strokeWidth = default_stroke_width
                 eraserMode = false}
             ) {
                 Icon(
@@ -189,7 +190,7 @@ import androidx.compose.ui.window.Dialog
                         showColorMenu = !showColorMenu
                         eraserMode = false
                         properties.color = color
-                        properties.strokeWidth = 10f
+                        properties.strokeWidth = default_stroke_width
                         lastColor = color
                     }
                 )
@@ -310,28 +311,96 @@ fun StickerMenu(
         ) {
             //First Section
             DropdownMenuItem(
-                text = { Text("House")},
-                leadingIcon = { Image(painterResource(R.drawable.icons8_castle_48), contentDescription = null) },
+                text = { Text("Start")},
+                leadingIcon = { Image(painterResource(R.drawable.start), contentDescription = "Start") },
                 onClick = {
-                    viewModel.addSticker("House", "Building", R.drawable.icons8_castle_48)
-                expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Ghost")},
-                leadingIcon = { Image(painterResource(R.drawable.icons8_ghost_64), contentDescription = null) },
-                onClick = {
-                    viewModel.addSticker("Ghost", "Nature", R.drawable.icons8_ghost_64)
-                expanded = false}
+                    viewModel.addSticker("Start", "Organisation", R.drawable.start)
+                    expanded = false}
             )
             HorizontalDivider()
 
-            //Second Section
+            //Second Section - Natur
             DropdownMenuItem(
                 text = { Text("Park")},
                 leadingIcon = { Image(painterResource(R.drawable.park), contentDescription = "Park") },
                 onClick = {
                     viewModel.addSticker("Park", "Nature", R.drawable.park)
                 expanded = false}
+            )
+
+            DropdownMenuItem(
+                text = { Text("Laubwald")},
+                leadingIcon = { Image(painterResource(R.drawable.laubwald), contentDescription = "Laubwald") },
+                onClick = {
+                    viewModel.addSticker("Laubwald", "Natur", R.drawable.laubwald)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Wasser")},
+                leadingIcon = { Image(painterResource(R.drawable.see), contentDescription = "Wasser") },
+                onClick = {
+                    viewModel.addSticker("Wasser", "Natur", R.drawable.see)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Sportplatz")},
+                leadingIcon = { Image(painterResource(R.drawable.sport), contentDescription = "Sportplatz") },
+                onClick = {
+                    viewModel.addSticker("Sportplatz", "Natur", R.drawable.sport)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Spielplatz")},
+                leadingIcon = { Image(painterResource(R.drawable.spielplatz), contentDescription = "Spielplatz") },
+                onClick = {
+                    viewModel.addSticker("Spielplatz", "Natur", R.drawable.spielplatz)
+                    expanded = false}
+            )
+            HorizontalDivider()
+            //Third Section - Gebäude
+            DropdownMenuItem(
+                text = { Text("Wohnhaus")},
+                leadingIcon = { Image(painterResource(R.drawable.wohnhaus), contentDescription = "Wohnhaus") },
+                onClick = {
+                    viewModel.addSticker("Wohnhaus", "Gebäude", R.drawable.wohnhaus)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Büros")},
+                leadingIcon = { Image(painterResource(R.drawable.bueros), contentDescription = "Büros") },
+                onClick = {
+                    viewModel.addSticker("Büros", "Gebäude", R.drawable.bueros)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Geschäfte")},
+                leadingIcon = { Image(painterResource(R.drawable.geschaeft), contentDescription = "Geschäfte") },
+                onClick = {
+                    viewModel.addSticker("Geschäfte", "Gebäude", R.drawable.geschaeft)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Kultureinrichtung")},
+                leadingIcon = { Image(painterResource(R.drawable.museum), contentDescription = "Museum") },
+                onClick = {
+                    viewModel.addSticker("Kultureinrichtung", "Gebäude", R.drawable.museum)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Schule/Kindergarten")},
+                leadingIcon = { Image(painterResource(R.drawable.schule), contentDescription = "Schule") },
+                onClick = {
+                    viewModel.addSticker("Schule", "Gebäude", R.drawable.schule)
+                    expanded = false}
+            )
+            HorizontalDivider()
+            // Fourth Section - Infrastruktur
+            DropdownMenuItem(
+                text = { Text("Haltestelle")},
+                leadingIcon = { Image(painterResource(R.drawable.haltestellen), contentDescription = "Haltestelle") },
+                onClick = {
+                    viewModel.addSticker("Haltestelle", "Infrastruktur", R.drawable.haltestellen)
+                    expanded = false}
             )
         }
     }
