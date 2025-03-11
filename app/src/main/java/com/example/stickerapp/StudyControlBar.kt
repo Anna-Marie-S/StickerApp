@@ -34,12 +34,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -132,7 +140,8 @@ fun DialogWithTextField(
         var textEnabled by remember { mutableStateOf(true) }
     val adress = arrayOf(textStreet, textHouseNumber, textZipCode, textCity)
 
-    val (first, second, third, fourth, fifth, sixth) = remember { FocusRequester.createRefs()}
+
+
     Dialog(onDismissRequest = { }) {
         // Draw a rectangle shape with rounded corners inside the dialog
         ElevatedCard(
@@ -168,55 +177,66 @@ fun DialogWithTextField(
 
                     Column(
                         modifier = Modifier
-                            .weight(1f)
+                            .weight(2f)
                             .padding(24.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
+                        val (first, second, third, fourth, fifth, sixth) = remember { FocusRequester.createRefs()}
+                        val focusManager = LocalFocusManager.current
+                        val kb = LocalSoftwareKeyboardController.current
                         OutlinedTextField(
                             value = textID,
+                            singleLine = true,
                             onValueChange = {
                                 textID = it
                             },
                             label = { Text("Id") },
-                            keyboardActions = KeyboardActions(onDone = {}),
-                            enabled = textEnabled,
-                            modifier = Modifier.focusRequester(first).focusProperties { next = second }
+                            keyboardOptions = KeyboardOptions( imeAction = ImeAction.Next), // Shows a next key on the keyboard
+                            keyboardActions = KeyboardActions(onNext = {focusManager.moveFocus(
+                                FocusDirection.Down)}),
+                            enabled = textEnabled
                         )
                         OutlinedTextField(
                             value = textStreet,
+                            singleLine = true,
                             onValueChange = { textStreet = it },
                             label = { Text("Straße") },
                             enabled = textEnabled,
-                            modifier = Modifier.focusRequester(second).focusProperties { next = third },
-                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(onNext = {focusManager.moveFocus(
+                                FocusDirection.Down)}),
                         )
                         OutlinedTextField(
                             value = textHouseNumber,
+                            singleLine = true,
                             onValueChange = { textHouseNumber = it },
                             label = { Text("Hausnummer") },
                             enabled = textEnabled,
-                            modifier = Modifier.focusRequester(third).focusProperties { next = fourth },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(onNext = {focusManager.moveFocus(
+                                FocusDirection.Down)}),
                         )
 
                         OutlinedTextField(
                             value = textZipCode,
+                            singleLine = true,
                             onValueChange = { textZipCode = it },
                             label = { Text("PLZ") },
                             enabled = textEnabled,
                             modifier = Modifier.focusRequester(fourth).focusProperties { next = fifth },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(onNext = {focusManager.moveFocus(
+                                FocusDirection.Down)}),
                         )
                         OutlinedTextField(
                             value = textCity,
+                            singleLine = true,
                             onValueChange = { textCity = it },
                             label = { Text("Stadt") },
                             enabled = textEnabled,
-                            modifier = Modifier.focusRequester(fifth).focusProperties { next = sixth },
-                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
-
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()})
                         )
                         Button(
                             onClick = {
@@ -232,8 +252,7 @@ fun DialogWithTextField(
                                     onStudyStartClick()
                                     onDismissRequest()
                                 }
-                            },
-                            modifier = Modifier.focusRequester(sixth).focusProperties { next = second }
+                            }
                         ) {
                             Text("Start")
                         }
