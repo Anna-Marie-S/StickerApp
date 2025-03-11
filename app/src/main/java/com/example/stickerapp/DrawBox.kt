@@ -126,6 +126,7 @@ fun DrawBox(
 
     fun clearCanvas(){
         viewModel.clearSticker()
+        viewModel.resetCanvas()
         pathsUndone.clear()
         paths.clear()
     }
