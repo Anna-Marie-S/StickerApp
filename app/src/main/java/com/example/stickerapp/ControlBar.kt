@@ -283,8 +283,8 @@ fun ColorSelectionMenu(
                         modifier = Modifier.padding(3.dp).width(40.dp)
                     ) { }
                     Button(
-                        onClick = {onColorClick(Color.Yellow)},
-                        colors = ButtonDefaults.buttonColors(Color.Yellow),
+                        onClick = {onColorClick(Color.LightGray)},
+                        colors = ButtonDefaults.buttonColors(Color.LightGray),
                         modifier = Modifier.padding(3.dp).width(40.dp)
                     ) { }
                 }

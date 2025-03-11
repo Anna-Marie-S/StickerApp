@@ -14,6 +14,10 @@ import kotlin.math.pow
 
 class MainViewModel : ViewModel() {
 
+    /*
+    Study things
+     */
+
     private var _inputVisible = MutableStateFlow(false)
     var inputVisible = _inputVisible.asStateFlow()
 
@@ -48,9 +52,6 @@ class MainViewModel : ViewModel() {
     private var _dragMode = MutableStateFlow(false)
     var dragMode = _dragMode.asStateFlow()
 
-    private var _pointerSize = MutableStateFlow(5f)
-    var pointerSize = _pointerSize.asStateFlow()
-
     private var _canvasScale = MutableStateFlow(1f)
     var canvasScale = _canvasScale.asStateFlow()
 
@@ -75,34 +76,15 @@ class MainViewModel : ViewModel() {
         _canvasOffset.update { pan }
     }
 
-    private var _canvasAddOn = MutableStateFlow(100.dp)
-    var canvasAddOn = _canvasAddOn.asStateFlow()
 
     fun setMode(boolean: Boolean){
         _dragMode.update { boolean }
     }
 
-    fun setPointerSize(size: Float){
-        _pointerSize.update { size}
-        println("VM says paintMode is ${pointerSize.value}")
-    }
-
-
     fun resetCanvas(){
-        _canvasScale.update { calculateResetScale() }
+        _canvasScale.update {1f }
+        _canvasOffset.update { Offset.Zero }
     }
-
-    private fun calculateResetScale(): Float{
-        var startingSize = 300f
-        var base = _canvasScale.value + startingSize
-        var newSize = base.pow(2)
-        var oldSize = startingSize.pow(2)
-        var newScale = newSize / oldSize
-        println("started with $startingSize, then went to $base now the scale is $newScale")
-        return newScale
-    }
-
-
 
     /*
     Sticker things
@@ -116,7 +98,6 @@ class MainViewModel : ViewModel() {
 
     fun setStickerPosition(offset: Offset){
         _stickerPosition.value = offset
-        println(stickerPosition.value.toString())
     }
 
     val counter = mutableStateOf(0)
@@ -161,25 +142,6 @@ class MainViewModel : ViewModel() {
     fun updateAddress(input: Array<String>){
         _address.update { input }
     }
-
-    /*
-    Stylus Stuff
-     */
-
-
-
-
-    private var _penColor = MutableStateFlow(Color.Black)
-    val penColor = _penColor.asStateFlow()
-
-
-    fun changePenColor(color: Color){
-        _penColor.update { color }
-    }
-
-    private var _paths = MutableStateFlow(listOf(Pair(Path, PathProperties())))
-    val paths = _paths.asStateFlow()
-
 
 
 }
