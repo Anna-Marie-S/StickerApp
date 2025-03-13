@@ -3,7 +3,7 @@ package com.example.stickerapp
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -28,6 +27,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -67,12 +67,15 @@ import androidx.compose.ui.window.Dialog
         val properties by rememberUpdatedState(newValue = pathProperties)
         var showStrokeWidthMenu by remember { mutableStateOf(false) }
         var showColorMenu by remember { mutableStateOf(false) }
+        var showStickerMenu by remember { mutableStateOf(false) }
         var lastColor by remember { mutableStateOf(Color.Black) }
         var eraserMode by remember{ mutableStateOf(false)}
         val default_stroke_width = 7f
 
         Row(
-            modifier = Modifier.padding(12.dp).background(MaterialTheme.colorScheme.background),
+            modifier = Modifier
+                .padding(12.dp)
+                .background(MaterialTheme.colorScheme.background),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -113,7 +116,10 @@ import androidx.compose.ui.window.Dialog
             Button(
                 onClick = {showColorMenu = true},
                 colors = ButtonDefaults.buttonColors(lastColor),
-                modifier = Modifier.padding(3.dp).width(30.dp).height(30.dp)
+                modifier = Modifier
+                    .padding(3.dp)
+                    .width(30.dp)
+                    .height(30.dp)
             ) { }
 
             // Undo Button
@@ -147,34 +153,47 @@ import androidx.compose.ui.window.Dialog
                 )
             }
             //Sticker DropDownMenu
-            StickerMenu(viewModel)
+            //StickerMenu(viewModel)
+            OutlinedButton(
+                onClick = {showStickerMenu = !showStickerMenu}
+            ) {
+                Text("Sticker")
+            }
+            if(showStickerMenu) {
+                StickerPopUp(viewModel, { showStickerMenu = false })
+            }
 
-            // For changing to TransformMode
-            Switch(
-                checked = mode.value, // the initial state of the switch
-                onCheckedChange = {
-                    viewModel.setMode(it)
-                },
-                thumbContent = if (mode.value) {
-                    {
-                        Icon(
-                            painterResource(R.drawable.drag_pan_24px),
-                            tint = Color.Gray,
-                            contentDescription = null,
-                            modifier = Modifier.size(SwitchDefaults.IconSize)
-                        )
+            Box(
+                modifier = Modifier.padding(3.dp)
+            ) {
+                // For changing to TransformMode
+                Switch(
+                    checked = mode.value, // the initial state of the switch
+                    onCheckedChange = {
+                        viewModel.setMode(it)
+                    },
+                    thumbContent = if (mode.value) {
+                        {
+                            Icon(
+                                painterResource(R.drawable.drag_pan_24px),
+                                tint = Color.Gray,
+                                contentDescription = null,
+                                modifier = Modifier.size(SwitchDefaults.IconSize)
+                            )
+                        }
+                    } else {
+                        {
+                            Icon(
+                                painterResource(R.drawable.stylus_note_24px),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(SwitchDefaults.IconSize)
+                            )
+                        }
                     }
-                } else {
-                    {
-                        Icon(
-                            painterResource(R.drawable.stylus_note_24px),
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(SwitchDefaults.IconSize)
-                        )
-                    }
-                }
-            )
+                )
+            }
+
 
             if(showStrokeWidthMenu){
                 StrokeWidthMenu(
@@ -206,7 +225,9 @@ fun StrokeWidthMenu(pathOption: PathProperties, onDismiss: () -> Unit){
         ElevatedCard(
             elevation =  CardDefaults.cardElevation(defaultElevation = 6.dp),
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.padding(8.dp).background(MaterialTheme.colorScheme.background)
+            modifier = Modifier
+                .padding(8.dp)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
                 Canvas(
@@ -265,179 +286,394 @@ fun ColorSelectionMenu(
                     Button(
                         onClick = {onColorClick(Color.Black)},
                         colors = ButtonDefaults.buttonColors(Color.Black),
-                        modifier = Modifier.padding(3.dp).width(40.dp)
+                        modifier = Modifier
+                            .padding(3.dp)
+                            .width(40.dp)
                     ) { }
                     Button(
                         onClick = {onColorClick(Color.Red)},
                         colors = ButtonDefaults.buttonColors(Color.Red),
-                        modifier = Modifier.padding(3.dp).width(40.dp)
+                        modifier = Modifier
+                            .padding(3.dp)
+                            .width(40.dp)
                     ) {}
                     Button(
                         onClick = {onColorClick(Color.Green)},
                         colors = ButtonDefaults.buttonColors(Color.Green),
-                        modifier = Modifier.padding(3.dp).width(40.dp)
+                        modifier = Modifier
+                            .padding(3.dp)
+                            .width(40.dp)
                     ) { }
                     Button(
                         onClick = {onColorClick(Color.Blue)},
                         colors = ButtonDefaults.buttonColors(Color.Blue),
-                        modifier = Modifier.padding(3.dp).width(40.dp)
+                        modifier = Modifier
+                            .padding(3.dp)
+                            .width(40.dp)
                     ) { }
                     Button(
                         onClick = {onColorClick(Color.LightGray)},
                         colors = ButtonDefaults.buttonColors(Color.LightGray),
-                        modifier = Modifier.padding(3.dp).width(40.dp)
+                        modifier = Modifier
+                            .padding(3.dp)
+                            .width(40.dp)
                     ) { }
                 }
         }
     }
 }
 
-@Composable
-fun StickerMenu(
-    viewModel: MainViewModel
-){
-    var expanded by remember { mutableStateOf(false) }
 
-    Box{
-        TextButton(onClick = {expanded = !expanded}) {
-            Row {
-                Text("Stickers")
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Sticker menu")
+@Composable
+fun StickerPopUp(
+    viewModel: MainViewModel,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        ElevatedCard(
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+                .padding(8.dp)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+        Column(
+            modifier = Modifier.padding(1.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // First Section Organisation
+            Row(
+                modifier = Modifier.padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.start), contentDescription = "Start",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("Start", "Orga", R.drawable.start)
+                                onDismiss()
+                            }
+                    )
+                    Text("Start")
+                }
+            }
+            //Second Section - Natur
+            Row(
+                modifier = Modifier.padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.park), contentDescription = "Park",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("Park", "Natur", R.drawable.park)
+                                onDismiss()
+                            }
+                    )
+                    Text("Park")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.laubwald), contentDescription = "Laubwald",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("Laubwald", "Natur", R.drawable.laubwald)
+                                onDismiss()
+                            }
+                    )
+                    Text("Laubwald")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.see), contentDescription = "See",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("See", "Natur", R.drawable.see)
+                                onDismiss()
+                            }
+                    )
+                    Text("See/Wasser")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.sport), contentDescription = "Sportplatz",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("Sportplatz", "Natur", R.drawable.sport)
+                                onDismiss()
+                            }
+                    )
+                    Text("Sportplatz")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.spielplatz), contentDescription = "Spielplatz",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("Spielplatz", "Natur", R.drawable.spielplatz)
+                                onDismiss()
+                            }
+                    )
+                    Text("Spielplatz")
+                }
+            }
+            // Third Section - Gebäude
+            Row(
+                modifier = Modifier.padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.wohnhaus), contentDescription = "Wohnhaus",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("Wohnhaus", "Gebäude", R.drawable.wohnhaus)
+                                onDismiss()
+                            }
+                    )
+                    Text("Wohnhaus")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.bueros), contentDescription = "Bueros",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("Büros", "Gebäude", R.drawable.bueros)
+                                onDismiss()
+                            }
+                    )
+                    Text("Büros")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.geschaeft), contentDescription = "Geschaefte",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("Geschäfte", "Gebäude", R.drawable.geschaeft)
+                                onDismiss()
+                            }
+                    )
+                    Text("Geschäft")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.museum), contentDescription = "Museum",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker(
+                                    "Kultureinrichtung",
+                                    "Gebäude",
+                                    R.drawable.museum
+                                )
+                                onDismiss()
+                            }
+                    )
+                    Text("Kultureinrichtung")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.schule), contentDescription = "Schule",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("Schule", "Gebäude", R.drawable.schule)
+                                onDismiss()
+                            }
+                    )
+                    Text("Schule")
+                }
+            }
+            //Fourth Section - Infrastruktur
+            Row(
+                modifier = Modifier.padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.haltestellen),
+                        contentDescription = "Haltestelle",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker(
+                                    "Haltestelle",
+                                    "Infrastruktur",
+                                    R.drawable.haltestellen
+                                )
+                                onDismiss()
+                            }
+                    )
+                    Text("Haltestelle")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.ampel), contentDescription = "Ampel",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker("Ampel", "Infrastruktur", R.drawable.ampel)
+                                onDismiss()
+                            }
+                    )
+                    Text("Ampel")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.zebrastreifen),
+                        contentDescription = "Zebrastreifen",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker(
+                                    "Zebrastreifen",
+                                    "Infrastruktur",
+                                    R.drawable.zebrastreifen
+                                )
+                                onDismiss()
+                            }
+                    )
+                    Text("Zebrastreifen")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.kreisverkehr),
+                        contentDescription = "Kreisverkehr",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker(
+                                    "Kreisverkehr",
+                                    "Infrastruktur",
+                                    R.drawable.kreisverkehr
+                                )
+                                onDismiss()
+                            }
+                    )
+                    Text("Kreisverkehr")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.spielstrasse),
+                        contentDescription = "Spielstrasse",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker(
+                                    "Spielstrasse",
+                                    "Infrastruktur",
+                                    R.drawable.spielstrasse
+                                )
+                                onDismiss()
+                            }
+                    )
+                    Text("Spielstraße")
+                }
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.fahrradstrasse),
+                        contentDescription = "Fahrradstrasse",
+                        Modifier
+                            .size(60.dp)
+                            .clickable {
+                                viewModel.addSticker(
+                                    "Fahrradstrasse",
+                                    "Infrastruktur",
+                                    R.drawable.fahrradstrasse
+                                )
+                                onDismiss()
+                            }
+                    )
+                    Text("Fahrradstraße")
+                }
+
             }
         }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {expanded = false}
-        ) {
-            //First Section
-            DropdownMenuItem(
-                text = { Text("Start")},
-                leadingIcon = { Image(painterResource(R.drawable.start), contentDescription = "Start") },
-                onClick = {
-                    viewModel.addSticker("Start", "Organisation", R.drawable.start)
-                    expanded = false}
-            )
-            HorizontalDivider()
-
-            //Second Section - Natur
-            DropdownMenuItem(
-                text = { Text("Park")},
-                leadingIcon = { Image(painterResource(R.drawable.park), contentDescription = "Park") },
-                onClick = {
-                    viewModel.addSticker("Park", "Nature", R.drawable.park)
-                expanded = false}
-            )
-
-            DropdownMenuItem(
-                text = { Text("Laubwald")},
-                leadingIcon = { Image(painterResource(R.drawable.laubwald), contentDescription = "Laubwald") },
-                onClick = {
-                    viewModel.addSticker("Laubwald", "Natur", R.drawable.laubwald)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Wasser")},
-                leadingIcon = { Image(painterResource(R.drawable.see), contentDescription = "Wasser") },
-                onClick = {
-                    viewModel.addSticker("Wasser", "Natur", R.drawable.see)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Sportplatz")},
-                leadingIcon = { Image(painterResource(R.drawable.sport), contentDescription = "Sportplatz") },
-                onClick = {
-                    viewModel.addSticker("Sportplatz", "Natur", R.drawable.sport)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Spielplatz")},
-                leadingIcon = { Image(painterResource(R.drawable.spielplatz), contentDescription = "Spielplatz") },
-                onClick = {
-                    viewModel.addSticker("Spielplatz", "Natur", R.drawable.spielplatz)
-                    expanded = false}
-            )
-            HorizontalDivider()
-            //Third Section - Gebäude
-            DropdownMenuItem(
-                text = { Text("Wohnhaus")},
-                leadingIcon = { Image(painterResource(R.drawable.wohnhaus), contentDescription = "Wohnhaus") },
-                onClick = {
-                    viewModel.addSticker("Wohnhaus", "Gebäude", R.drawable.wohnhaus)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Büros")},
-                leadingIcon = { Image(painterResource(R.drawable.bueros), contentDescription = "Büros") },
-                onClick = {
-                    viewModel.addSticker("Büros", "Gebäude", R.drawable.bueros)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Geschäfte")},
-                leadingIcon = { Image(painterResource(R.drawable.geschaeft), contentDescription = "Geschäfte") },
-                onClick = {
-                    viewModel.addSticker("Geschäfte", "Gebäude", R.drawable.geschaeft)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Kultureinrichtung")},
-                leadingIcon = { Image(painterResource(R.drawable.museum), contentDescription = "Museum") },
-                onClick = {
-                    viewModel.addSticker("Kultureinrichtung", "Gebäude", R.drawable.museum)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Schule/Kindergarten")},
-                leadingIcon = { Image(painterResource(R.drawable.schule), contentDescription = "Schule") },
-                onClick = {
-                    viewModel.addSticker("Schule", "Gebäude", R.drawable.schule)
-                    expanded = false}
-            )
-            HorizontalDivider()
-            // Fourth Section - Mobilität
-            DropdownMenuItem(
-                text = { Text("Haltestelle")},
-                leadingIcon = { Image(painterResource(R.drawable.haltestellen), contentDescription = "Haltestelle") },
-                onClick = {
-                    viewModel.addSticker("Haltestelle", "Infrastruktur", R.drawable.haltestellen)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Ampel")},
-                leadingIcon = { Image(painterResource(R.drawable.ampel), contentDescription = "Ampel") },
-                onClick = {
-                    viewModel.addSticker("Ampel", "Infrastruktur", R.drawable.ampel)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Zebrastreifen")},
-                leadingIcon = { Image(painterResource(R.drawable.zebrastreifen), contentDescription = "Zebrastreife") },
-                onClick = {
-                    viewModel.addSticker("Zebrastreifen", "Zebrastreifen", R.drawable.zebrastreifen)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Kreisverkehr")},
-                leadingIcon = { Image(painterResource(R.drawable.kreisverkehr), contentDescription = "Kreisverkehr") },
-                onClick = {
-                    viewModel.addSticker("Kreisverkehr", "Infrastruktur", R.drawable.kreisverkehr)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Spielstraße")},
-                leadingIcon = { Image(painterResource(R.drawable.spielstrasse), contentDescription = "Spielstraße") },
-                onClick = {
-                    viewModel.addSticker("Spielstraße", "Infrastruktur", R.drawable.spielstrasse)
-                    expanded = false}
-            )
-            DropdownMenuItem(
-                text = { Text("Fahrradstraße")},
-                leadingIcon = { Image(painterResource(R.drawable.fahrradstrasse), contentDescription = "Fahrradstraße") },
-                onClick = {
-                    viewModel.addSticker("Fahrradstraße", "Infrastruktur", R.drawable.fahrradstrasse)
-                    expanded = false}
-            )
-        }
     }
+}
 }
 
