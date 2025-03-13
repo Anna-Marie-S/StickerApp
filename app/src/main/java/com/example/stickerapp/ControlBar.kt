@@ -68,8 +68,8 @@ import androidx.compose.ui.window.Dialog
         var showStrokeWidthMenu by remember { mutableStateOf(false) }
         var showColorMenu by remember { mutableStateOf(false) }
         var lastColor by remember { mutableStateOf(Color.Black) }
-        var eraserMode by remember{ mutableStateOf(false) }
-    val default_stroke_width = 7f
+        var eraserMode by remember{ mutableStateOf(false)}
+        val default_stroke_width = 7f
 
         Row(
             modifier = Modifier.padding(12.dp).background(MaterialTheme.colorScheme.background),
@@ -394,12 +394,47 @@ fun StickerMenu(
                     expanded = false}
             )
             HorizontalDivider()
-            // Fourth Section - Infrastruktur
+            // Fourth Section - Mobilität
             DropdownMenuItem(
                 text = { Text("Haltestelle")},
                 leadingIcon = { Image(painterResource(R.drawable.haltestellen), contentDescription = "Haltestelle") },
                 onClick = {
                     viewModel.addSticker("Haltestelle", "Infrastruktur", R.drawable.haltestellen)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Ampel")},
+                leadingIcon = { Image(painterResource(R.drawable.ampel), contentDescription = "Ampel") },
+                onClick = {
+                    viewModel.addSticker("Ampel", "Infrastruktur", R.drawable.ampel)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Zebrastreifen")},
+                leadingIcon = { Image(painterResource(R.drawable.zebrastreifen), contentDescription = "Zebrastreife") },
+                onClick = {
+                    viewModel.addSticker("Zebrastreifen", "Zebrastreifen", R.drawable.zebrastreifen)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Kreisverkehr")},
+                leadingIcon = { Image(painterResource(R.drawable.kreisverkehr), contentDescription = "Kreisverkehr") },
+                onClick = {
+                    viewModel.addSticker("Kreisverkehr", "Infrastruktur", R.drawable.kreisverkehr)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Spielstraße")},
+                leadingIcon = { Image(painterResource(R.drawable.spielstrasse), contentDescription = "Spielstraße") },
+                onClick = {
+                    viewModel.addSticker("Spielstraße", "Infrastruktur", R.drawable.spielstrasse)
+                    expanded = false}
+            )
+            DropdownMenuItem(
+                text = { Text("Fahrradstraße")},
+                leadingIcon = { Image(painterResource(R.drawable.fahrradstrasse), contentDescription = "Fahrradstraße") },
+                onClick = {
+                    viewModel.addSticker("Fahrradstraße", "Infrastruktur", R.drawable.fahrradstrasse)
                     expanded = false}
             )
         }
