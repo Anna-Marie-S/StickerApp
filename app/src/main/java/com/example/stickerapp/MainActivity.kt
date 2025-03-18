@@ -353,6 +353,7 @@ private fun saveFileMediaStore(context: Context, content: List<Sticker>, time: S
                 resolver.delete(myUri, null, null)
             }
         }
+        Toast.makeText(context, "Saved csv File to Downloads", Toast.LENGTH_SHORT).show()
     }catch (e: IOException){
         Toast.makeText(context, "Failed to save csv File", Toast.LENGTH_SHORT).show()
     }
@@ -396,6 +397,7 @@ private fun saveBitmapMediaStore(context: Context, bitmap: Bitmap, fileName: Str
                 resolver.delete(myUri, null, null)
             }
         }
+        Toast.makeText(context, "Saved picture to Pictures", Toast.LENGTH_SHORT).show()
     }catch (e: IOException){
         Toast.makeText(context, "Failed to save bitmap", Toast.LENGTH_SHORT).show()
     }
