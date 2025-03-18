@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -68,9 +69,10 @@ import androidx.compose.ui.window.Dialog
         var showStrokeWidthMenu by remember { mutableStateOf(false) }
         var showColorMenu by remember { mutableStateOf(false) }
         var showStickerMenu by remember { mutableStateOf(false) }
+        var showDeleteMenu by remember { mutableStateOf(false) }
         var lastColor by remember { mutableStateOf(Color.Black) }
         var eraserMode by remember{ mutableStateOf(false)}
-        val default_stroke_width = 7f
+        var lastStrokeWidth by remember { mutableStateOf(7f) }
 
         Row(
             modifier = Modifier
@@ -83,7 +85,7 @@ import androidx.compose.ui.window.Dialog
             IconButton(
                 onClick = {
                     properties.color = lastColor
-                properties.strokeWidth = default_stroke_width
+                properties.strokeWidth = lastStrokeWidth
                 eraserMode = false}
             ) {
                 Icon(
@@ -97,6 +99,7 @@ import androidx.compose.ui.window.Dialog
             // Eraser Button
             IconButton(
                 onClick = {
+                    lastStrokeWidth = if(properties.color != Color.White) properties.strokeWidth else lastStrokeWidth
                     lastColor = if(properties.color != Color.White) properties.color else lastColor
                     properties.color = Color.White
                 properties.strokeWidth = 50f
@@ -121,6 +124,16 @@ import androidx.compose.ui.window.Dialog
                     .width(30.dp)
                     .height(30.dp)
             ) { }
+            // Stroke Width
+            IconButton(
+                onClick = {showStrokeWidthMenu = true}
+            ) {
+                Icon(
+                    Icons.Default.MoreVert,
+                    contentDescription = "Stroke Width Menu",
+                    tint = Color.Black
+                )
+            }
 
             // Undo Button
             IconButton(
@@ -144,7 +157,7 @@ import androidx.compose.ui.window.Dialog
             }
             //Reset Button
             IconButton(
-                onClick = {onResetClick()}
+                onClick = {showDeleteMenu = true}
             )  {
                 Icon(
                     Icons.Default.Delete,
@@ -193,7 +206,12 @@ import androidx.compose.ui.window.Dialog
                     }
                 )
             }
-
+            if(showDeleteMenu){
+                DeletePopUp(
+                    onDismiss = {showDeleteMenu = false},
+                    onYesClick = {onResetClick()}
+                )
+            }
 
             if(showStrokeWidthMenu){
                 StrokeWidthMenu(
@@ -209,7 +227,6 @@ import androidx.compose.ui.window.Dialog
                         showColorMenu = !showColorMenu
                         eraserMode = false
                         properties.color = color
-                        properties.strokeWidth = default_stroke_width
                         lastColor = color
                     }
                 )
@@ -323,6 +340,32 @@ fun ColorSelectionMenu(
     }
 }
 
+@Composable
+fun DeletePopUp(
+    onDismiss: () -> Unit,
+    onYesClick: () -> Unit
+){
+    Dialog(onDismissRequest = {}) {
+        ElevatedCard(
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+                .padding(8.dp)
+                .background(MaterialTheme.colorScheme.background)
+        ){
+            Column {
+                Text("Möchten Sie alle Sticker und Zeichnungen von der Leinwand löschen? ")
+                Row {
+                    TextButton(onClick = {onDismiss()}) { Text("Nein") }
+                    TextButton(onClick = {
+                        onYesClick()
+                        onDismiss()
+                    }) { Text("Ja")}
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun StickerPopUp(
@@ -342,6 +385,7 @@ fun StickerPopUp(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text("Suchen Sie sich Sticker aus, die Sie der Karte hinzufügen können. Durch längeres Klicken können Sie den Sticker wieder von der Leinwand löschen oder vergrößern/verkleinern.")
             // First Section Organisation
             Row(
                 modifier = Modifier.padding(8.dp),

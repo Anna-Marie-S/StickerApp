@@ -7,6 +7,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -142,8 +144,30 @@ fun DragRotateBox(
                         imageVector = Icons.Filled.Close,
                         contentDescription = "Close Menu"
                     )
-
                 }
+                //Zoom Handler
+                        Box(
+                            modifier = Modifier
+                                .size(handleSize)
+                                .clip(CircleShape)
+                                .background(Color.Green)
+                                .align(Alignment.BottomStart)
+                                .pointerInput(Unit) {
+                                    detectDragGestures(
+                                        onDrag = { change, dragAmount ->
+                                            change.consume()
+                                            scale =
+                                                (scale * 0.2f * dragAmount.getDistanceSquared()).coerceIn(1f, 5f)
+                                        }
+                                    )
+                                }
+                        )
+                        {
+                            Icon(
+                                imageVector = Icons.Filled.Settings,
+                                contentDescription = "Zoom",
+                            )
+                        }
             }
             }
         }
@@ -179,29 +203,7 @@ fun DragRotateBox(
 //                            )
 //                        }
 
-                        // Zoom Handler
-//                        Box(
-//                            modifier = Modifier
-//                                .size(handleSize)
-//                                .clip(CircleShape)
-//                                .background(Color.Green)
-//                                .align(Alignment.BottomStart)
-//                                .pointerInput(Unit) {
-//                                    detectDragGestures(
-//                                        onDrag = { change, dragAmount ->
-//                                            change.consume()
-//                                            scale =
-//                                                (scale * dragAmount.x).coerceAtMost(5f)
-//                                        }
-//                                    )
-//                                }
-//                        )
-//                        {
-//                            Icon(
-//                                imageVector = Icons.Filled.Settings,
-//                                contentDescription = "Zoom",
-//                            )
-//                        }
+
 
 
 
