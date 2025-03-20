@@ -15,16 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import kotlin.math.roundToInt
 
 @Composable
     fun ControlBar(
@@ -128,11 +124,7 @@ import androidx.compose.ui.window.Dialog
             IconButton(
                 onClick = {showStrokeWidthMenu = true}
             ) {
-                Icon(
-                    Icons.Default.MoreVert,
-                    contentDescription = "Stroke Width Menu",
-                    tint = Color.Black
-                )
+                Text(properties.strokeWidth.roundToInt().toString() + "px")
             }
 
             // Undo Button
@@ -350,12 +342,16 @@ fun DeletePopUp(
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
-                .padding(8.dp)
+                .fillMaxWidth()
+                .padding(24.dp)
                 .background(MaterialTheme.colorScheme.background)
         ){
             Column {
-                Text("Möchten Sie alle Sticker und Zeichnungen von der Leinwand löschen? ")
-                Row {
+                Text("Möchten Sie alle Sticker und Zeichnungen von der Leinwand löschen? ",
+                    modifier = Modifier.padding(12.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     TextButton(onClick = {onDismiss()}) { Text("Nein") }
                     TextButton(onClick = {
                         onYesClick()
@@ -385,7 +381,8 @@ fun StickerPopUp(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Suchen Sie sich Sticker aus, die Sie der Karte hinzufügen können. Durch längeres Klicken können Sie den Sticker wieder von der Leinwand löschen oder vergrößern/verkleinern.")
+            Text("Suchen Sie sich Sticker aus, die Sie der Karte hinzufügen möchten. Durch längeres Klicken können Sie den Sticker dann wieder von der Leinwand löschen oder vergrößern/verkleinern.",
+                modifier = Modifier.padding(4.dp))
             // First Section Organisation
             Row(
                 modifier = Modifier.padding(8.dp),
