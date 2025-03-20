@@ -7,20 +7,23 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,13 +35,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -63,11 +62,9 @@ fun DragRotateBox(
         val boxSize = 100.dp
         val handleSize = 20.dp
         var rotation by remember { mutableStateOf(0f) }
-        var scale by remember { mutableStateOf(1f) }
+        var scale by remember { mutableStateOf(1f.coerceIn(0.5f, 5f)) }
         var centroid by remember { mutableStateOf(Offset.Zero) }
         val boxSizePx = with(LocalDensity.current) { boxSize.toPx() }
-        val center = Offset(boxSizePx, boxSizePx)
-        val startPos = viewModel.stickerPosition.value
 
 
         var position by remember { mutableStateOf(stickerPos) }
@@ -130,7 +127,7 @@ fun DragRotateBox(
                 Box(
                     modifier = Modifier
                         .size(handleSize)
-                        .clip(CircleShape)
+                        .clip(RoundedCornerShape(2.dp))
                         .background(Color.Red)
                         .align(Alignment.TopStart)
                         .pointerInput(Unit) {
@@ -149,7 +146,7 @@ fun DragRotateBox(
                 Box(
                     modifier = Modifier
                         .size(handleSize)
-                        .clip(CircleShape)
+                        .clip(RoundedCornerShape(2.dp))
                         .background(Color.Cyan)
                         .align(Alignment.TopEnd)
                         .pointerInput(Unit) {
@@ -167,23 +164,37 @@ fun DragRotateBox(
                         Box(
                             modifier = Modifier
                                 .size(handleSize)
-                                .clip(CircleShape)
-                                .background(Color.Green)
                                 .align(Alignment.BottomStart)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(Color.Green)
                                 .pointerInput(Unit) {
-                                    detectDragGestures(
-                                        onDrag = { change, dragAmount ->
-                                            change.consume()
-                                            scale =
-                                                (scale * 0.2f * dragAmount.getDistanceSquared()).coerceIn(1f, 5f)
-                                        }
+                                    detectTapGestures(
+                                        onTap = { scale = scale - 0.5f }
                                     )
                                 }
                         )
                         {
                             Icon(
-                                imageVector = Icons.Filled.Settings,
-                                contentDescription = "Zoom",
+                                painterResource(R.drawable.remove_24px),
+                                contentDescription = "Minus",
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .size(handleSize)
+                                .align(Alignment.BottomEnd)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(Color.Green)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = { scale = scale + 0.5f }
+                                    )
+                                }
+                        )
+                        {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = "Plus",
                             )
                         }
             }

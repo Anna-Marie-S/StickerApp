@@ -279,12 +279,14 @@ Box() {
                             .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Your Painting")
+                        Text("Vielen Dank für Ihre Teilnahme!")
                         Spacer(Modifier.size(16.dp))
                         Image(
                             bitmap = bitmap,
-                            contentDescription = "Vielen Dank für die Teilnahme!"
+                            contentDescription = "bitmap"
                         )
+                        Text("Ihre Daten wurden in Dokumente/Downloads gespeichert.")
+                        Text("Ihre Zeichnung wurde in Bilder gespeichert.")
                         Spacer(Modifier.size(4.dp))
                         Button(onClick = {
                             showDialog = false
@@ -303,16 +305,16 @@ Box() {
 
 fun OutputStream.writeCsv(stickers: List<Sticker>, time: String, address: Array<String>) {
     val writer = bufferedWriter()
-    writer.write(""" "Time in ms:", ${time}""")
+    writer.write(""" "Time in ms:"; ${time}""")
     writer.newLine()
-    writer.write(""" "Adresse:", ${address[0]}, ${address[1]}, ${address[2]}, ${address[3]} """)
+    writer.write(""" "Adresse:"; ${address[0]}; ${address[1]}; ${address[2]}; ${address[3]} """)
     writer.newLine()
     writer.write("Used Stickers:")
     writer.newLine()
-    writer.write(""""Name:", "Tag:"""")
+    writer.write("""Name:"; "Tag:""")
     writer.newLine()
     stickers.forEach {
-        writer.write(""""${it.name}", "${it.tag}"""")
+        writer.write(""""${it.name}"; "${it.tag}"""")
         writer.newLine()
     }
     writer.flush()
