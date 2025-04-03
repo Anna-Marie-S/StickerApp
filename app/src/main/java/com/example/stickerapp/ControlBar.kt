@@ -395,15 +395,15 @@ fun StickerPopUp(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        painterResource(R.drawable.start), contentDescription = "Start",
+                        painterResource(R.drawable.home), contentDescription = "Home",
                         Modifier
                             .size(60.dp)
                             .clickable {
-                                viewModel.addSticker("Start", "Orga", R.drawable.start)
+                                viewModel.addSticker("Home", "Orga", R.drawable.home)
                                 onDismiss()
                             }
                     )
-                    Text("Start")
+                    Text("Zuhause")
                 }
             }
             //Second Section - Natur
