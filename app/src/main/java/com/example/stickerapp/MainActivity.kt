@@ -199,7 +199,10 @@ fun DrawingScreen(
                 viewModel.updateFileName(it)
             onStartClick()},
             onAddressConfirmation = {viewModel.updateAddress(it)},
-            onStudyStartClick = {viewModel.setStudyState(StudyStates.STARTED)},
+            onStudyStartClick = {
+                viewModel.setStudyState(StudyStates.STARTED)
+                                viewModel.clearSticker()
+                                viewModel.resetCanvas()},
             modifier = Modifier.background(MaterialTheme.colorScheme.background)
         )
     }
@@ -287,7 +290,8 @@ fun OutputStream.writeCsv(stickers: List<Sticker>, time: String, address: Array<
     writer.newLine()
     writer.write("Used Stickers:")
     writer.newLine()
-    writer.write("""Name:"; "Tag:""")
+    writer.write("""Name:; Tag:""")
+    writer.newLine()
     writer.newLine()
     stickers.forEach {
         writer.write(""""${it.name}"; "${it.tag}"""")

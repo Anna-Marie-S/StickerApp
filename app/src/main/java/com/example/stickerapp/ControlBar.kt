@@ -81,6 +81,7 @@ import kotlin.math.roundToInt
             IconButton(
                 onClick = {
                     properties.color = lastColor
+                    lastStrokeWidth = if(properties.color != Color.White) properties.strokeWidth else lastStrokeWidth
                 properties.strokeWidth = lastStrokeWidth
                 eraserMode = false}
             ) {

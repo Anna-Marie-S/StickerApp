@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">StickerApp</string>
-    <string name ="info_text">Wir möchten Sie im Rahmen dieser Studie bitten, eine mentale Karte von Ihrer aktuellen Wohnumgebung zu zeichnen (ähnlich einer Landkarte, also aus der Vogelperspektive). Sie können aus der Karte herauszoomen um sie einen Überblick über Ihre Zeichnung zu verschaffen. \n
-   Sie können sich so viel Zeit lassen, wie Sie benötigen, üblicherweise sind die meisten Probanden nach 20-30 Minuten fertig. Eine Stoppuhr beginnt, sobald Sie auf den "Start"-Button drücken und misst die Zeit, die sei verwenden um die mentale Karte zu generieren.
+    <string name ="info_text">Wir möchten Sie im Rahmen dieser Studie bitten, eine mentale Karte von Ihrer aktuellen Wohnumgebung zu zeichnen (ähnlich einer Landkarte, also aus der Vogelperspektive). Sie können aus der Karte herauszoomen um sich einen Überblick über Ihre Zeichnung zu verschaffen. \n
+   Sie können sich so viel Zeit lassen, wie Sie benötigen, üblicherweise sind die meisten Probanden nach 20-30 Minuten fertig. Eine Stoppuhr beginnt, sobald Sie auf den "Start"-Button drücken und misst die Zeit, die Sie verwenden, um die mentale Karte zu zeichnen.
    Versuchen Sie so vollständig zu sein wie möglich, aber machen Sie sich keine großen Gedanken über die ästhetische Qualität der Zeichnung, der Inhalt ist uns wichtiger. Sie können gerne unterschiedliche Farben benutzen, um bestimmte Gegebenheiten zu verdeutlichen.
    Außerdem können Sie Ihrer Zeichnung Sticker hinzufügen, um bestimmte Einrichtungen oder Flächen zu markieren. Diese Sticker können verschoben und auch wieder gelöscht werden.
     </string>
-    <string name="camera_text">Bitte zoome so aus deiner Zeichnung heraus, dass sie komplett zu sehen ist und klicke dann auf den Kamera Button.</string>
+    <string name="camera_text">Bitte zoome so aus deiner Zeichnung heraus, sodass sie komplett zu sehen ist und klicke dann auf den Kamera Button.</string>
 </resources>
