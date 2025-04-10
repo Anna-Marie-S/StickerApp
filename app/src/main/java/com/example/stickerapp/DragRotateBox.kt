@@ -62,7 +62,7 @@ fun DragRotateBox(
         val boxSize = 100.dp
         val handleSize = 20.dp
         var rotation by remember { mutableStateOf(0f) }
-        var scale by remember { mutableStateOf(1f.coerceIn(0.5f, 5f)) }
+        var scale by remember { mutableStateOf(1f.coerceIn(1f, 5f)) }
         var centroid by remember { mutableStateOf(Offset.Zero) }
         val boxSizePx = with(LocalDensity.current) { boxSize.toPx() }
 
