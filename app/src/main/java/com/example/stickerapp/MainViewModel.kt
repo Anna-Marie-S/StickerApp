@@ -87,6 +87,15 @@ class MainViewModel : ViewModel() {
     }
 
     /*
+    Path Things
+     */
+    private val _paths = mutableStateListOf<Pair<Path, PathProperties>>()
+    val paths = _paths
+
+    fun addPath(curPath: Path, curPathProperties: PathProperties){
+        _paths.add(Pair(curPath, curPathProperties))
+    }
+    /*
     Sticker things
      */
 

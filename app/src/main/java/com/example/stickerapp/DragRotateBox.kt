@@ -146,42 +146,42 @@ fun DragRotateBox(
                     )
                 }
                 //Zoom Handler
-                        Box(
-                            modifier = Modifier
-                                .size(handleSize)
-                                .align(Alignment.BottomStart)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(Color.Green)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onTap = { scale = scale - 0.5f }
-                                    )
-                                }
-                        )
-                        {
-                            Icon(
-                                painterResource(R.drawable.remove_24px),
-                                contentDescription = "Minus",
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .size(handleSize)
-                                .align(Alignment.BottomEnd)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(Color.Green)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onTap = { scale = scale + 0.5f }
-                                    )
-                                }
-                        )
-                        {
-                            Icon(
-                                imageVector = Icons.Filled.Add,
-                                contentDescription = "Plus",
-                            )
-                        }
+//                        Box(
+//                            modifier = Modifier
+//                                .size(handleSize)
+//                                .align(Alignment.BottomStart)
+//                                .clip(RoundedCornerShape(2.dp))
+//                                .background(Color.Green)
+//                                .pointerInput(Unit) {
+//                                    detectTapGestures(
+//                                        onTap = { scale = scale - 0.5f }
+//                                    )
+//                                }
+//                        )
+//                        {
+//                            Icon(
+//                                painterResource(R.drawable.remove_24px),
+//                                contentDescription = "Minus",
+//                            )
+//                        }
+//                        Box(
+//                            modifier = Modifier
+//                                .size(handleSize)
+//                                .align(Alignment.BottomEnd)
+//                                .clip(RoundedCornerShape(2.dp))
+//                                .background(Color.Green)
+//                                .pointerInput(Unit) {
+//                                    detectTapGestures(
+//                                        onTap = { scale = scale + 0.5f }
+//                                    )
+//                                }
+//                        )
+//                        {
+//                            Icon(
+//                                imageVector = Icons.Filled.Add,
+//                                contentDescription = "Plus",
+//                            )
+//                        }
             }
             }
         }

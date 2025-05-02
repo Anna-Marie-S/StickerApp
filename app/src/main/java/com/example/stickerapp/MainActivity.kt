@@ -200,9 +200,11 @@ fun DrawingScreen(
             onStartClick()},
             onAddressConfirmation = {viewModel.updateAddress(it)},
             onStudyStartClick = {
+                onStartClick()
                 viewModel.setStudyState(StudyStates.STARTED)
-                                viewModel.clearSticker()
-                                viewModel.resetCanvas()},
+                viewModel.clearSticker()
+                viewModel.resetCanvas()
+                },
             modifier = Modifier.background(MaterialTheme.colorScheme.background)
         )
     }
@@ -284,11 +286,11 @@ Box() {
 
 fun OutputStream.writeCsv(stickers: List<Sticker>, time: String, address: Array<String>) {
     val writer = bufferedWriter()
-    writer.write(""" "Time in ms:"; ${time}""")
+    writer.write(""" Zeit in ms:; ${time}""")
     writer.newLine()
     writer.write(""" "Adresse:"; ${address[0]}; ${address[1]}; ${address[2]}; ${address[3]} """)
     writer.newLine()
-    writer.write("Used Stickers:")
+    writer.write("Benutzte Sticker:")
     writer.newLine()
     writer.write("""Name:; Tag:""")
     writer.newLine()
