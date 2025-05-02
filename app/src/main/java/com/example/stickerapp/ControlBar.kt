@@ -122,11 +122,11 @@ import kotlin.math.roundToInt
                     .height(30.dp)
             ) { }
             // Stroke Width
-            IconButton(
-                onClick = {showStrokeWidthMenu = true}
-            ) {
-                Text(properties.strokeWidth.roundToInt().toString() + "px")
-            }
+//            IconButton(
+//                onClick = {showStrokeWidthMenu = true}
+//            ) {
+//                Text(properties.strokeWidth.roundToInt().toString() + "px")
+//            }
 
             // Undo Button
             IconButton(

@@ -86,6 +86,7 @@ fun DrawBox(
     var currentPath by remember { mutableStateOf(Path()) }
     var currentPathProperty by remember { mutableStateOf(PathProperties()) }
 
+    val pathsVM = viewModel.paths
     // here the Canvas
     val dragMode by viewModel.dragMode.collectAsState()
     val list = viewModel.stickerList
@@ -97,6 +98,9 @@ fun DrawBox(
     var stickerPosition by remember { mutableStateOf(Offset.Zero) }
     stickerPosition = Offset.Zero - offsetVM.value
 
+    /*
+    We collect the state with the CustomTouchPad Composable and call the vm functions to change it
+     */
     val state = rememberTransformableState { zoomChange, offsetChange, _ ->
         viewModel.changeScale(scaleVM.value * zoomChange)
         viewModel.changeOffset(offsetVM.value + offsetChange)
@@ -130,6 +134,7 @@ fun DrawBox(
         pathsUndone.clear()
         paths.clear()
     }
+
 
     Column(
         modifier = Modifier.padding(12.dp),
@@ -212,6 +217,7 @@ fun DrawBox(
                         MotionEvent.Up -> {
                                 currentPath.lineTo(currentPosition.x, currentPosition.y)
                                 paths.add(Pair(currentPath, currentPathProperty))
+                            viewModel.addPath(currentPath, currentPathProperty)
                                 currentPath = Path()
 
                                 currentPathProperty = PathProperties(
@@ -238,7 +244,7 @@ fun DrawBox(
 
                     with(drawContext.canvas) {
 
-                        paths.forEach {
+                        pathsVM.forEach {
 
                             val path = it.first
                             val property = it.second
@@ -255,7 +261,7 @@ fun DrawBox(
                                 )
                             } else {
 
-                                // Source
+                                // draws a Path()
                                 drawPath(
                                     color = Color.Transparent,
                                     path = path,
@@ -297,6 +303,9 @@ fun DrawBox(
                     }
                 }
 
+                /*
+                To show the sticker on the Canvas.
+                 */
                 list.forEach { sticker ->
                     key(
                         sticker.id
@@ -318,7 +327,9 @@ fun DrawBox(
     }
 }
 
-
+/*
+Collects the state so that we can move and and scale the canvas.
+ */
 
 @Composable
 fun CustomTouchPad(
