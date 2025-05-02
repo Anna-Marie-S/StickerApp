@@ -204,6 +204,9 @@ fun DrawingScreen(
                 viewModel.setStudyState(StudyStates.STARTED)
                 viewModel.clearSticker()
                 viewModel.resetCanvas()
+                viewModel.clearPathsUndone()
+                viewModel.clearPaths()
+                viewModel.addSticker("Home", "Orga", R.drawable.home)
                 },
             modifier = Modifier.background(MaterialTheme.colorScheme.background)
         )

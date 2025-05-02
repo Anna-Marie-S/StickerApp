@@ -47,17 +47,6 @@ fun DrawBox(
     modifier: Modifier = Modifier
 ) {
 
-    val paths = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
-
-    /**
-     * Paths that are undone via button. These paths are restored if user pushes
-     * redo button if there is no new path drawn.
-     *
-     * If new path is drawn after this list is cleared to not break paths after undoing previous
-     * ones.
-     */
-    val pathsUndone = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
-
     /**
      * Canvas touch state. [MotionEvent.Idle] by default, [MotionEvent.Down] at first contact,
      * [MotionEvent.Move] while dragging and [MotionEvent.Up] when first pointer is up
@@ -105,34 +94,12 @@ fun DrawBox(
         viewModel.changeScale(scaleVM.value * zoomChange)
         viewModel.changeOffset(offsetVM.value + offsetChange)
     }
-    fun unDo() {
-        if (paths.isNotEmpty()) {
-            val lastItem = paths.last()
-            val lastPath = lastItem.first
-            val lastPathProperty = lastItem.second
-            paths.remove(lastItem)
-
-            pathsUndone.add(Pair(lastPath, lastPathProperty))
-        }
-    }
-
-    fun reDo(){
-        if (pathsUndone.isNotEmpty()) {
-
-            val lastPath = pathsUndone.last().first
-            val lastPathProperty = pathsUndone.last().second
-            val lastIndex = pathsUndone.size - 1
-
-            pathsUndone.removeAt(lastIndex)
-            paths.add(Pair(lastPath, lastPathProperty))
-        }
-    }
 
     fun clearCanvas(){
         viewModel.clearSticker()
         viewModel.resetCanvas()
-        pathsUndone.clear()
-        paths.clear()
+        viewModel.clearPathsUndone()
+        viewModel.clearPaths()
     }
 
 
@@ -144,8 +111,8 @@ fun DrawBox(
             modifier = Modifier,
             pathProperties = currentPathProperty,
             viewModel = viewModel,
-            onUndoClick = {unDo()},
-            onRedoClick = {reDo()},
+            onUndoClick = {viewModel.unDoPath()},
+            onRedoClick = {viewModel.reDoPath()},
             onResetClick = {clearCanvas()}
 
         )
@@ -216,7 +183,7 @@ fun DrawBox(
 
                         MotionEvent.Up -> {
                                 currentPath.lineTo(currentPosition.x, currentPosition.y)
-                                paths.add(Pair(currentPath, currentPathProperty))
+                                //paths.add(Pair(currentPath, currentPathProperty))
                             viewModel.addPath(currentPath, currentPathProperty)
                                 currentPath = Path()
 
@@ -225,12 +192,11 @@ fun DrawBox(
                                     color = currentPathProperty.color,
                                     strokeCap = currentPathProperty.strokeCap,
                                     strokeJoin = currentPathProperty.strokeJoin,
-                                    eraseMode = currentPathProperty.eraseMode
                                 )
 
 
                             // Since new path is drawn no need to store paths to undone
-                            pathsUndone.clear()
+                            viewModel.clearPathsUndone()
 
                             // If we leave this state at MotionEvent.Up it causes current path to draw
                             // line from (0,0) if this composable recomposes when draw mode is changed
@@ -249,7 +215,6 @@ fun DrawBox(
                             val path = it.first
                             val property = it.second
 
-                            if (!property.eraseMode) {
                                 drawPath(
                                     color = property.color,
                                     path = path,
@@ -259,25 +224,11 @@ fun DrawBox(
                                         join = property.strokeJoin
                                     )
                                 )
-                            } else {
 
-                                // draws a Path()
-                                drawPath(
-                                    color = Color.Transparent,
-                                    path = path,
-                                    style = Stroke(
-                                        width = currentPathProperty.strokeWidth,
-                                        cap = currentPathProperty.strokeCap,
-                                        join = currentPathProperty.strokeJoin
-                                    ),
-                                    blendMode = BlendMode.Clear
-                                )
-                            }
                         }
 
                         if (motionEvent != MotionEvent.Idle) {
 
-                            if (!currentPathProperty.eraseMode) {
                                 drawPath(
                                     color = currentPathProperty.color,
                                     path = currentPath,
@@ -287,18 +238,7 @@ fun DrawBox(
                                         join = currentPathProperty.strokeJoin
                                     )
                                 )
-                            } else {
-                                drawPath(
-                                    color = Color.Transparent,
-                                    path = currentPath,
-                                    style = Stroke(
-                                        width = currentPathProperty.strokeWidth,
-                                        cap = currentPathProperty.strokeCap,
-                                        join = currentPathProperty.strokeJoin
-                                    ),
-                                    blendMode = BlendMode.Clear
-                                )
-                            }
+
                         }
                     }
                 }

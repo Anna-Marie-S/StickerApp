@@ -92,8 +92,42 @@ class MainViewModel : ViewModel() {
     private val _paths = mutableStateListOf<Pair<Path, PathProperties>>()
     val paths = _paths
 
+    private val _pathsUndone = mutableStateListOf<Pair<Path, PathProperties>>()
+    val pathsUndone = _pathsUndone
+
     fun addPath(curPath: Path, curPathProperties: PathProperties){
         _paths.add(Pair(curPath, curPathProperties))
+    }
+
+    fun unDoPath(){
+        if(_paths.isNotEmpty()){
+            val lastItem = _paths.last()
+            val lastPath = lastItem.first
+            val lastPathProperty = lastItem.second
+            _paths.remove(lastItem)
+
+            pathsUndone.add(Pair(lastPath, lastPathProperty))
+        }
+    }
+
+    fun reDoPath(){
+        if (pathsUndone.isNotEmpty()){
+
+            val lastPath = pathsUndone.last().first
+            val lastPathProperty = pathsUndone.last().second
+            val lastIndex = pathsUndone.size - 1
+
+            pathsUndone.removeAt(lastIndex)
+            paths.add(Pair(lastPath, lastPathProperty))
+        }
+    }
+
+    fun clearPaths(){
+        _paths.clear()
+    }
+
+    fun clearPathsUndone(){
+        _pathsUndone.clear()
     }
     /*
     Sticker things

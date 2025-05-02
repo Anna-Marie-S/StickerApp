@@ -8,6 +8,5 @@ class PathProperties(
     var strokeWidth: Float = 10f,
     var color: Color = Color.Black,
     var strokeCap: StrokeCap = StrokeCap.Round,
-    var strokeJoin: StrokeJoin = StrokeJoin.Round,
-    var eraseMode: Boolean = false
+    var strokeJoin: StrokeJoin = StrokeJoin.Round
 )
