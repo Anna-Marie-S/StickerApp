@@ -82,7 +82,7 @@ import kotlin.math.roundToInt
                 onClick = {
                     properties.color = lastColor
                     lastStrokeWidth = if(properties.color != Color.White) properties.strokeWidth else lastStrokeWidth
-                properties.strokeWidth = lastStrokeWidth
+                properties.strokeWidth = 10f
                 eraserMode = false}
             ) {
                 Icon(
