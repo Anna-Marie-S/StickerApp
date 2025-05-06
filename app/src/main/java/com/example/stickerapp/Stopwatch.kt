@@ -59,7 +59,8 @@ class Stopwatch {
             Instant.ofEpochMilli(timeMillis),
             ZoneId.systemDefault()
         )
-        val formatter = DateTimeFormatter.ofPattern("mm:ss:SSS", Locale.getDefault())
+        val formatter = DateTimeFormatter.ofPattern("mm:ss", Locale.getDefault())
+        //val formatter = DateTimeFormatter.ofPattern("mm:ss:SSS", Locale.getDefault())
         return localDateTime.format(formatter)
     }
 }

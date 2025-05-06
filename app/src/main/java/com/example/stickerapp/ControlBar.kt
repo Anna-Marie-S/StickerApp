@@ -220,6 +220,7 @@ import kotlin.math.roundToInt
                         showColorMenu = !showColorMenu
                         eraserMode = false
                         properties.color = color
+                        properties.strokeWidth = 10f
                         lastColor = color
                     }
                 )
@@ -382,7 +383,7 @@ fun StickerPopUp(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Suchen Sie sich Sticker aus, die Sie der Karte hinzufügen möchten. Durch längeres Klicken können Sie den Sticker dann wieder von der Leinwand löschen oder vergrößern/verkleinern.",
+            Text("Suchen Sie sich Sticker aus, die Sie der Karte hinzufügen möchten. Sie können die Sticker verschieben. Durch längeres Klicken können Sie den Sticker wieder von der Leinwand löschen.",
                 modifier = Modifier.padding(4.dp))
             // First Section Organisation
             Row(

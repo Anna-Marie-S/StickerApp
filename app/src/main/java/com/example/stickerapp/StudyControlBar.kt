@@ -293,8 +293,35 @@ fun CameraDialog(
 }
 
 @Composable
+fun ExtraCameraDialog(
+    onDismissRequest: () -> Unit,
+    onOkayClick: () -> Unit
+){
+    Dialog(onDismissRequest = {}) {
+        ElevatedCard(
+            elevation =  CardDefaults.cardElevation(defaultElevation = 6.dp),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(24.dp)
+        ) {
+            Text(
+                text = "Bitte zoomen Sie aus Ihrer Karte hinaus, bis alles zu sehen ist und klicken Sie auf okay.",
+            modifier = Modifier.padding(12.dp)
+            )
+            TextButton(
+                {onOkayClick()
+                    onDismissRequest()}
+            ) {
+                Text("Okay")
+            }
+
+        }
+    }
+}
+
+@Composable
 fun InfoTextBox(
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onCameraButton: () -> Unit
 ){
     Dialog(onDismissRequest = {}) {
     ElevatedCard(
@@ -304,7 +331,7 @@ fun InfoTextBox(
     ) {
         Column {
             IconButton(
-                onClick = {onDismissRequest()}
+                onClick = { onDismissRequest() }
             ) {
                 Icon(Icons.Default.Close, contentDescription = "Close")
             }
@@ -312,6 +339,23 @@ fun InfoTextBox(
                 text = stringResource(R.string.info_text),
                 modifier = Modifier.padding(12.dp)
             )
+            Row(
+                modifier = Modifier.padding(2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+            IconButton(
+                onClick = { onCameraButton() }
+            ) {
+                Icon(
+                    painterResource(R.drawable.photo_camera_24px),
+                    contentDescription = "Save Bitmap",
+                    tint = Color.Red
+                )
+            }
+                Text(text ="<- Zum Speichern außerhalb einer Studie!",
+                    color = Color.Red)
+        }
         }
 
     }
