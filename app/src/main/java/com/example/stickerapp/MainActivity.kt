@@ -221,7 +221,7 @@ fun DrawingScreen(
                 viewModel.resetCanvas()
                 viewModel.clearPathsUndone()
                 viewModel.clearPaths()
-                viewModel.addSticker("Home", "Orga", R.drawable.home)
+                viewModel.addSticker("Zuhause", "Orga", R.drawable.home)
                 },
             modifier = Modifier.background(MaterialTheme.colorScheme.background)
         )
@@ -235,7 +235,8 @@ fun DrawingScreen(
 
     if(infoBoxVisible.value){
         InfoTextBox(
-            onDismissRequest = {viewModel.setInfoBoxVisible(false)}
+            onDismissRequest = {viewModel.setInfoBoxVisible(false)},
+            onCameraButton = {downloadBitmap() }
         )
     }
 
@@ -315,7 +316,7 @@ fun OutputStream.writeCsv(stickers: List<Sticker>, time: String, address: Array<
     val writer = bufferedWriter()
     writer.write(""" Zeit in ms:; ${time}""")
     writer.newLine()
-    writer.write(""" "Adresse:"; ${address[0]}; ${address[1]}; ${address[2]}; ${address[3]} """)
+    writer.write(""" Adresse:; ${address[0]}; ${address[1]}; ${address[2]}; ${address[3]} """)
     writer.newLine()
     writer.write("Benutzte Sticker:")
     writer.newLine()
