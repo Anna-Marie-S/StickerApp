@@ -14,11 +14,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -34,12 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.stickerapp.ui.theme.StickerAppTheme
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
@@ -85,45 +80,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun StopwatchDisplay(
-    formattedTime: String,
-    onStartClick: () -> Unit,
-    onPauseClick: () -> Unit,
-    onResetClick: () -> Unit,
-    modifier: Modifier = Modifier
-){
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = formattedTime,
-            fontWeight = FontWeight.Bold,
-            fontSize = 30.sp,
-            color = Color.Black
-        )
-        Spacer(Modifier.height(16.dp))
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ){
-            Button(onStartClick){
-                Text("Start")
-            }
-            Button(onPauseClick){
-                Text("Pause")
-            }
-            Button(onResetClick){
-                Text("Reset")
-            }
-
-        }
-    }
-
-}
 
 @SuppressLint("NewApi")
 @Composable
@@ -135,7 +91,6 @@ fun DrawingScreen(
     save: (Bitmap) -> Unit,
     ) {
 
-    val drawController = rememberDrawController()
     val captureController = rememberCaptureController()
 
     val uiScope = rememberCoroutineScope()
@@ -246,7 +201,6 @@ Box() {
                 .background(LightGray)
         ) {
             DrawBox(
-                drawController = drawController,
                 viewModel = viewModel,
                 captureController = captureController,
                 modifier = Modifier
