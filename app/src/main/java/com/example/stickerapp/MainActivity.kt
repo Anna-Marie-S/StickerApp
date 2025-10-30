@@ -1,5 +1,12 @@
 package com.example.stickerapp
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.ContentValues
+import android.content.Context
+import android.content.pm.ActivityInfo
+import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -33,13 +40,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.stickerapp.ui.theme.StickerAppTheme
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.IOException
+import java.io.OutputStream
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
@@ -186,11 +199,19 @@ Box() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ControlBar(drawController, viewModel)
-        ControllerBar(
-            onDownloadClick = {
-                downloadBitmap() },
-            onShowClick = { showBitmap() }
+        StudyControlBar(
+            viewModel,
+            onStartClick = {showInput()},
+            onStopClick = {
+                onPauseClick()
+                saveFileMediaStore(context, stickerList, formattedTime, address.value, fileName.value)
+                viewModel.setCameraDialogVisibility(true)
+                viewModel.setMode(true)
+            },
+            onInfoClick = {showInfoBox()},
+            onDownloadClick = {downloadBitmap()
+            showBitmap()
+            viewModel.setStudyState(StudyStates.ON_BACKGROUND)}
         )
 
         //with the DrawBox and the StickerList
